@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.baidu.provider.server">
+
+    <application>
+        <!-- 同进程 -->
+        <service android:name="com.baidu.provider.server.ConnService">
+            <intent-filter>
+                <action android:name="conn_service" />
+            </intent-filter>
+        </service>
+
+        <!-- 跨进程 -->
+        <service
+            android:name="com.baidu.provider.server.ConnService2"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="conn_service_2" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

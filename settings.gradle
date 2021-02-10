@@ -1,0 +1,8 @@
+include ':protocol'
+include ':common'
+rootProject.name = "SeparateUi"
+
+include ':provider'
+include ':provider_server'
+include ':third_part'
+include ':app'

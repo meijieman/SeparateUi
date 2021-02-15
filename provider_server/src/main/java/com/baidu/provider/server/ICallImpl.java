@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.baidu.common.DataCenter;
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 import com.baidu.provider.Call;
 import com.baidu.provider.ICall;
 
@@ -24,29 +24,29 @@ import android.os.RemoteException;
 public class ICallImpl extends ICall.Stub {
 
     public ICallImpl() {
-        SLog.d("pid " + Process.myPid());
+        Slog.d("pid " + Process.myPid());
     }
 
     @Override
     public Call getCallResult(Call call) throws RemoteException {
-        SLog.w("收到请求 " + call + ", pid " + Process.myPid());
+        Slog.w("收到请求 " + call + ", pid " + Process.myPid());
 
         String className = call.getClassName();
         String methodName = call.getMethodName();
         Object[] params = call.getParams();
         Class<?>[] paramsTypes = call.getParamTypes();
 
-        SLog.d("反射 className " + className + ", " + methodName + ", " + Arrays.toString(params));
+        Slog.d("反射 className " + className + ", " + methodName + ", " + Arrays.toString(params));
         try {
             // FIXME: 2021/1/21 定义的接口如 BookService，PersonService 及其参数对象的  className 需要创建的包名路径一致
             // 以后可以通过编译时注解来解决，只需要接口中定义的方法对应上就可以
             List<Object> mImpls = DataCenter.getInstance().getImpls();
             if (mImpls.isEmpty()) {
-                SLog.e("默认初始化失败");
+                Slog.e("默认初始化失败");
                 mImpls.add(Class.forName("com.baidu.protocol.BookServiceImpl").newInstance());
                 mImpls.add(Class.forName("com.baidu.protocol.RemoteViewServiceImpl").newInstance());
             }
-            SLog.d("mImpls size " + mImpls.size());
+            Slog.d("mImpls size " + mImpls.size());
 
             Class<?> classType = Class.forName(className);
             // 获取 classType 的实现类
@@ -63,14 +63,14 @@ public class ICallImpl extends ICall.Stub {
             }
             // 获取所要调用的方法
             Method method = classType.getMethod(methodName, paramsTypes);
-            SLog.v("method " + method);
+            Slog.v("method " + method);
 
             if (params != null && params[0] instanceof IBinder) {
                 String canonicalName = paramsTypes[0].getCanonicalName();
-                SLog.i("注册调用的方法 " + canonicalName);
+                Slog.i("注册调用的方法 " + canonicalName);
                 IBinder binder = (IBinder) params[0];
                 IInterface iInterface = binder.queryLocalInterface(canonicalName);
-                SLog.i("注册调用的方法 iInterface " + iInterface);
+                Slog.i("注册调用的方法 iInterface " + iInterface);
 
             }
             // 报错啦 exception java.lang.IllegalArgumentException: method com.baidu.separate.impl.BookServiceImpl.register argument 1 has type com.baidu.separate.protocol.callback.OnBookListener, got android.os.BinderProxy
@@ -78,11 +78,11 @@ public class ICallImpl extends ICall.Stub {
             call.setResult(result);
         } catch (Exception e) {
             e.printStackTrace();
-            SLog.e("报错啦 exception " + e);
+            Slog.e("报错啦 exception " + e);
             call.setResult(e);
         }
 
-        SLog.v("计算结果 result " + call.getResult());
+        Slog.v("计算结果 result " + call.getResult());
         return call;
     }
 }

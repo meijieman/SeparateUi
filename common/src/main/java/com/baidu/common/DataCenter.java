@@ -3,7 +3,7 @@ package com.baidu.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 
 import android.os.Process;
 
@@ -31,7 +31,7 @@ public class DataCenter {
     private final List<Object> mImpls = new ArrayList<>();
 
     public List<Object> getImpls() {
-        SLog.d("getImpls, pid " + Process.myPid());
+        Slog.d("getImpls, pid " + Process.myPid());
         return mImpls;
     }
 

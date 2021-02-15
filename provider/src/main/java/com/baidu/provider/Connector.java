@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,7 +31,7 @@ public class Connector {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mICall = ICall.Stub.asInterface(service);
-            SLog.i("连接成功, " + Thread.currentThread().getName());
+            Slog.i("连接成功, " + Thread.currentThread().getName());
             mIsConnected = true;
             mCountDownLatch.countDown();
         }
@@ -46,7 +46,7 @@ public class Connector {
      * 创建链接
      */
     public void connect(Context ctx, boolean ipc) {
-        SLog.i("连接 ");
+        Slog.i("连接 ");
 
         if (mIsConnected) {
             return;
@@ -62,34 +62,34 @@ public class Connector {
             }
             intent = new Intent("conn_service");
         }
-        SLog.d("intent " + intent.toURI());
+        Slog.d("intent " + intent.toURI());
         Intent explicitIntent = explicitIntent(ctx, intent);
         if (explicitIntent == null) {
-            SLog.e("绑定服务失败，服务不存在");
+            Slog.e("绑定服务失败，服务不存在");
             return;
         }
-        SLog.d("explicitIntent " + explicitIntent.toURI());
+        Slog.d("explicitIntent " + explicitIntent.toURI());
         try {
             boolean isSuccess = ctx.bindService(explicitIntent, conn, Context.BIND_AUTO_CREATE);
-            SLog.v("bind " + isSuccess + ", " + Thread.currentThread().getName());
+            Slog.v("bind " + isSuccess + ", " + Thread.currentThread().getName());
             if (isSuccess) {
                 try {
                     mCountDownLatch.await(500, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    SLog.e("链接超时 ");
+                    Slog.e("链接超时 ");
                 }
             } else {
-                SLog.e("绑定服务失败，服务不存在2");
+                Slog.e("绑定服务失败，服务不存在2");
             }
         } catch (Exception e) {
-            SLog.e("绑定服务失败 e " + e);
+            Slog.e("绑定服务失败 e " + e);
             e.printStackTrace();
         }
     }
 
     public Call sendCall(Call call) {
-        SLog.v("发送请求 " + call);
+        Slog.v("发送请求 " + call);
         if (mICall == null) {
             Call call1 = new Call();
             call1.setResult(new RuntimeException("绑定服务失败"));
@@ -98,10 +98,10 @@ public class Connector {
 
         try {
             Call callResult = mICall.getCallResult(call);
-            SLog.v("收到结果 " + callResult);
+            Slog.v("收到结果 " + callResult);
             return callResult;
         } catch (Exception e) {
-            SLog.e("产生异常 " + e);
+            Slog.e("产生异常 " + e);
             Call call1 = new Call();
             call1.setResult(e);
             return call1;

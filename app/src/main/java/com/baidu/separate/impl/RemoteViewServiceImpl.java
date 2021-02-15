@@ -1,6 +1,6 @@
 package com.baidu.separate.impl;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 import com.baidu.separate.protocol.RemoteViewService;
 import com.baidu.separate.App;
 import com.baidu.separate.MainActivity;
@@ -22,12 +22,12 @@ public class RemoteViewServiceImpl implements RemoteViewService {
     @Override
     public void sendData(Bundle bundle) {
         RemoteViews remoteView = bundle.getParcelable("xxx");
-        SLog.i("收到数据 remoteView " + remoteView);
+        Slog.i("收到数据 remoteView " + remoteView);
 
         View view = remoteView.apply(App.getContext(), null);
         int layoutId = remoteView.getLayoutId();
-        SLog.i("收到数据 view " + view + ", layoutId " + layoutId + ", " + Thread.currentThread());
-        SLog.i("收到数据 mOnTransform " + MainActivity.mOnTransform + ", pid " + Process.myPid());
+        Slog.i("收到数据 view " + view + ", layoutId " + layoutId + ", " + Thread.currentThread());
+        Slog.i("收到数据 mOnTransform " + MainActivity.mOnTransform + ", pid " + Process.myPid());
         if (MainActivity.mOnTransform != null) {
             MainActivity.mOnTransform.onReceived(view);
         }

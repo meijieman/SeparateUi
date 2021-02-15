@@ -3,7 +3,7 @@ package com.baidu.separate.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.bean.Result;
@@ -39,13 +39,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public boolean addBook(Book book) {
-        SLog.i("book " + book);
+        Slog.i("book " + book);
         return mBooks.add(book);
     }
 
     @Override
     public void removeBook(int no) {
-        SLog.i("no " + no);
+        Slog.i("no " + no);
         for (Book book : mBooks) {
             if (book.getNo() == no) {
                 mBooks.remove(book);
@@ -54,7 +54,7 @@ public class BookServiceImpl implements BookService {
                 result.setCode(100);
                 result.setMsg(no + "移除成功 ");
 
-                SLog.i("result " + result);
+                Slog.i("result " + result);
                 for (OnBookListener listener : mListeners) {
                     listener.onChanged(result);
                 }
@@ -128,13 +128,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void register(OnBookListener listener) {
-        SLog.i("listener " + listener);
+        Slog.i("listener " + listener);
         mListeners.add(listener);
     }
 
     @Override
     public void onUnregister(OnBookListener listener) {
-        SLog.i("listener " + listener);
+        Slog.i("listener " + listener);
         // 跨进程注销普通 listener 存在问题
         mListeners.remove(listener);
     }
@@ -146,13 +146,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void regCallback(OnCommonCallback callback) {
-        SLog.i("callback " + callback);
+        Slog.i("callback " + callback);
         mCallbacks.register(callback);
     }
 
     @Override
     public void unregCallback(OnCommonCallback callback) {
-        SLog.i("callback " + callback);
+        Slog.i("callback " + callback);
         mCallbacks.unregister(callback);
     }
 }

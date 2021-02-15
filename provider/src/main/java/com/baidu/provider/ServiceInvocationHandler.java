@@ -1,13 +1,9 @@
 package com.baidu.provider;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
-import com.baidu.common.util.SLog;
-
-import android.os.Parcelable;
+import com.baidu.common.util.Slog;
 
 public class ServiceInvocationHandler implements InvocationHandler {
 
@@ -19,7 +15,7 @@ public class ServiceInvocationHandler implements InvocationHandler {
     }
 
     public ServiceInvocationHandler(Class<?> classType, Connector connector) {
-        SLog.v("classType " + classType);
+        Slog.v("classType " + classType);
         this.classType = classType;
         this.connector = connector;
     }
@@ -43,13 +39,13 @@ public class ServiceInvocationHandler implements InvocationHandler {
 
         // 封装请求信息
         Call call = new Call(classType.getName(), method.getName(), method.getParameterTypes(), args);
-        SLog.v("动态代理 " + call);
+        Slog.v("动态代理 " + call);
         // 发送请求
         call = connector.sendCall(call);
         Object returnResult = call.getResult();
         if (returnResult instanceof Exception) {
             Object o = retBase(returnType);
-            SLog.e(o + "返回异常!!! " + returnResult);
+            Slog.e(o + "返回异常!!! " + returnResult);
             return o;
         }
 
@@ -58,9 +54,9 @@ public class ServiceInvocationHandler implements InvocationHandler {
         }
         // 判断方法返回值是否为 void，如果为 void 且没有报错，则不关心返回结果
         if (returnType.isAssignableFrom(void.class)) {
-            SLog.i("void");
+            Slog.i("void");
         } else {
-            SLog.v(">>>> 返回结果 " + call);
+            Slog.v(">>>> 返回结果 " + call);
         }
         return returnResult;
     }

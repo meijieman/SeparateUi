@@ -10,7 +10,7 @@ import android.util.Log;
  * @since 2021/1/7 12:29 PM
  */
 
-public class SLog {
+public class Slog {
     private static final String TAG = "==##";
 
     public static void v(String msg) {

@@ -1,7 +1,7 @@
 package com.baidu.separate;
 
 import com.baidu.common.DataCenter;
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 import com.baidu.separate.impl.BookServiceImpl;
 import com.baidu.separate.impl.RemoteViewServiceImpl;
 import com.baidu.separate.impl.WeatherServiceImpl;
@@ -29,7 +29,7 @@ public class App extends Application {
         super.onCreate();
         sApp = this;
 
-        SLog.i("onCreate 初始化实例, pid " + Process.myPid());
+        Slog.i("onCreate 初始化实例, pid " + Process.myPid());
         DataCenter.getInstance().add(new BookServiceImpl());
         DataCenter.getInstance().add(new WeatherServiceImpl());
         DataCenter.getInstance().add(new RemoteViewServiceImpl());

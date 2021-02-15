@@ -1,6 +1,6 @@
 package com.baidu.demo.client;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 import com.baidu.common.util.ToastUtil;
 import com.baidu.provider.Provider;
 import com.baidu.separate.protocol.BookService;
@@ -33,14 +33,14 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            SLog.i("result " + result);
+            Slog.i("result " + result);
             mText.setText("收到更新 " + result);
         }
     };
     private final OnCommonCallback mCallback = new OnCommonCallback.Stub() {
         @Override
         public void onChanged(Bundle data) throws RemoteException {
-            SLog.i("callback " + data);
+            Slog.i("callback " + data);
             mText.setText("callback " + data);
         }
     };
@@ -48,7 +48,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            SLog.i("点击按钮===");
+            Slog.i("点击按钮===");
             ToastUtil.getInstance().showShort("点击按钮");
         }
     };
@@ -74,10 +74,10 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         mText = findViewById(R.id.tv_text);
         ImageView img = findViewById(R.id.iv_img);
 
-        SLog.i("onCreate");
+        Slog.i("onCreate");
         // 初始化
         Provider.getInstance().init(getApplicationContext(), true);
-        SLog.i("init end");
+        Slog.i("init end");
 
         IntentFilter filter = new IntentFilter(ACTION_CLICK);
         registerReceiver(mReceiver, filter);
@@ -103,14 +103,14 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             book.setAvailable(true);
 
             boolean result = bookService.addBook(book);
-            SLog.w("结果: " + result + ", used: " + (System.currentTimeMillis() - start));
+            Slog.w("结果: " + result + ", used: " + (System.currentTimeMillis() - start));
             mText.setText("添加 " + result);
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
 
         } else if (id == R.id.btn_count) {
             int count = bookService.getCount();
-            SLog.w("count " + count);
+            Slog.w("count " + count);
             mText.setText("总数 " + count);
         } else if (id == R.id.btn_register) {
             // FIXME: 2021/1/27 不支持回调中设置为 Serializable，为什么支持 ArrayList 呢？
@@ -129,7 +129,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             Intent intent = new Intent(ACTION_CLICK);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
             remoteView.setOnClickPendingIntent(R.id.btn_add, pendingIntent);
-            SLog.i("发送数据 remoteView " + remoteView + ", pid " + Process.myPid());
+            Slog.i("发送数据 remoteView " + remoteView + ", pid " + Process.myPid());
 
             Bundle b = new Bundle();
             b.putParcelable("xxx", remoteView);

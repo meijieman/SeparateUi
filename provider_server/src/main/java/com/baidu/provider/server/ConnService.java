@@ -1,6 +1,6 @@
 package com.baidu.provider.server;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 
 import android.content.Intent;
 import android.os.IBinder;
@@ -20,14 +20,14 @@ public class ConnService extends android.app.Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        SLog.i("onCreate pid " + Process.myPid());
+        Slog.i("onCreate pid " + Process.myPid());
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         ICallImpl iCall = new ICallImpl();
-        SLog.i("iCall pid " + Process.myPid());
+        Slog.i("iCall pid " + Process.myPid());
         return iCall;
     }
 }

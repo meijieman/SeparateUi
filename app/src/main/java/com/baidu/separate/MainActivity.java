@@ -1,6 +1,6 @@
 package com.baidu.separate;
 
-import com.baidu.common.util.SLog;
+import com.baidu.common.util.Slog;
 import com.baidu.provider.Provider;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.bean.Book;
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            SLog.i("result " + result);
+            Slog.i("result " + result);
             mText.setText("收到更新 " + result);
         }
     };
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SLog.d("onCreate");
+        Slog.d("onCreate");
 
         findViewById(R.id.btn_add).setOnClickListener(this);
         findViewById(R.id.btn_remove).setOnClickListener(this);
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mOnTransform = new OnTransform() {
             @Override
             public void onReceived(View view) {
-                SLog.i("view 收到 " + view + ", pid " + Process.myPid());
+                Slog.i("view 收到 " + view + ", pid " + Process.myPid());
                 fl.post(new Runnable() {
                     @Override
                     public void run() {
@@ -73,13 +73,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             book.setAvailable(true);
 
             boolean result = bookService.addBook(book);
-            SLog.w("结果: " + result + ", used: " + (System.currentTimeMillis() - start));
+            Slog.w("结果: " + result + ", used: " + (System.currentTimeMillis() - start));
             mText.setText("添加 " + result);
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
         } else if (id == R.id.btn_count) {
             int count = bookService.getCount();
-            SLog.w("count " + count);
+            Slog.w("count " + count);
             mText.setText("总数 " + count);
 
         } else if (id == R.id.btn_register) {

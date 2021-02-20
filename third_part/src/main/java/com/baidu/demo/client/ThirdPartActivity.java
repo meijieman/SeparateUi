@@ -98,7 +98,8 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             long start = System.currentTimeMillis();
 
             Book book = new Book();
-            book.setNo(mNo++);
+//            book.setNo(mNo++);
+            book.setNo(mNo);
             book.setName("第一行代码" + start);
             book.setAvailable(true);
 
@@ -115,9 +116,13 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         } else if (id == R.id.btn_register) {
             // FIXME: 2021/1/27 不支持回调中设置为 Serializable，为什么支持 ArrayList 呢？
             //  java.lang.RuntimeException: Parcelable encountered ClassNotFoundException reading a Serializable object (name = com.baidu.demo.client.-$$Lambda$ThirdPartActivity$FCOslk6SrLTXtREJt5DrDBTydb4)
+            long start = System.currentTimeMillis();
             bookService.register(mListener);
+            Slog.w("time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_unreg) {
-            bookService.onUnregister(mListener);
+            long start = System.currentTimeMillis();
+            bookService.unregister(mListener);
+            Slog.w("time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_reg_comm) {
             bookService.regCallback(mCallback);
         } else if (id == R.id.btn_unreg_comm) {

@@ -11,21 +11,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * 负责创建链接
  */
 public class Connector {
+    private final CallbackExchanger mExchanger;
 
-    public Connector() {
-
+    public Connector(CallbackExchanger exchanger) {
+        mExchanger = exchanger;
     }
 
     private final CountDownLatch mCountDownLatch = new CountDownLatch(1);
 
     private ICall mICall;
     private boolean mIsConnected;
+    private final CallbackProxy mCallback = new CallbackProxy.Stub() {
+        @Override
+        public void onChange(Bundle bundle) throws RemoteException {
+            Slog.i("onChange " + bundle);
+            mExchanger.onChange(bundle);
+        }
+    };
 
     private final ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -34,6 +44,11 @@ public class Connector {
             Slog.i("连接成功, " + Thread.currentThread().getName());
             mIsConnected = true;
             mCountDownLatch.countDown();
+            try {
+                mICall.register(mCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

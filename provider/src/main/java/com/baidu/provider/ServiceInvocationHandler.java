@@ -9,15 +9,17 @@ public class ServiceInvocationHandler implements InvocationHandler {
 
     private final Class<?> classType;
     private final Connector connector;
+    private final CallbackExchanger exchanger;
 
     public Class<?> getClassType() {
         return classType;
     }
 
-    public ServiceInvocationHandler(Class<?> classType, Connector connector) {
+    public ServiceInvocationHandler(Class<?> classType, Connector connector, CallbackExchanger exchanger) {
         Slog.v("classType " + classType);
         this.classType = classType;
         this.connector = connector;
+        this.exchanger = exchanger;
     }
 
     @Override
@@ -37,11 +39,29 @@ public class ServiceInvocationHandler implements InvocationHandler {
 //            }
 //        }
 
+        // 判断方法是否以 register 开头，是则判断参数是否是接口，是则认为是回调方法，特殊处理
+        if (method.getName().startsWith("register")) {
+            String key = method.getName();
+            // TODO: 2021/2/17 需要校验注册回调的参数实现了 Parcelable
+            //  如果是基础类型咋办？？？
+            exchanger.add(key, args[0]);
+
+            // 将注册监听的对象的 hasCode 传过去，让服务端创建一个回调和其一一对应，当服务端的回调被调用的时候，回调 hasCode 对应的接口
+            args[0] = args[0].hashCode();
+        } else if (method.getName().startsWith("unregister")) {
+            String key = method.getName();
+            exchanger.remove(key, args[0]);
+            args[0] = args[0].hashCode();
+        }
         // 封装请求信息
         Call call = new Call(classType.getName(), method.getName(), method.getParameterTypes(), args);
         Slog.v("动态代理 " + call);
         // 发送请求
         call = connector.sendCall(call);
+        if (call == null) {
+            Slog.e("call is null");
+            return null;
+        }
         Object returnResult = call.getResult();
         if (returnResult instanceof Exception) {
             Object o = retBase(returnType);

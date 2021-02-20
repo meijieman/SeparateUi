@@ -23,10 +23,18 @@ public interface BookService extends NameService {
 
     List<Book> getBooks(String json);
 
+    /**
+     * 借书
+     *
+     * @param staff 职员
+     * @return
+     */
+    boolean borrowBook(Staff staff);
 
     //FIXME 方法参数不能传递普通接口？
+    // 2021-02-17 16:53:07 可以传递普通接口，但是接口中的参数需要是 Parcelable
     void register(OnBookListener listener);
 
-    void onUnregister(OnBookListener listener);
+    void unregister(OnBookListener listener);
 
 }

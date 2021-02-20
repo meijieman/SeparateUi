@@ -2,6 +2,7 @@ package com.baidu.provider;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
+import java.util.concurrent.Exchanger;
 
 import com.baidu.common.DataCenter;
 
@@ -24,10 +25,12 @@ import android.content.Context;
 public class Provider {
 
     private final Connector connector;
+    private final CallbackExchanger mExchanger;
     private boolean mIpc;
 
     private Provider() {
-        connector = new Connector();
+        mExchanger = new CallbackExchanger();
+        connector = new Connector(mExchanger);
     }
 
     public static Provider getInstance() {
@@ -62,8 +65,8 @@ public class Provider {
      */
     public <T> T get(Class<T> clazz) {
 
-        /* 如果不是跨进程，直接返回对应接口的实现类，但是实现类在 provider_server，如何拿到呢
-           将实现类的设置下层到公共模块。这样 provider_server 和 provider 都可以获取到实现类
+        /* Q:如果不是跨进程，直接返回对应接口的实现类，但是实现类在 provider_server，如何拿到呢
+           A:将实现类的设置下沉到公共模块。这样 provider_server 和 provider 都可以获取到实现类
          */
         if (!mIpc) {
             List<Object> impls = DataCenter.getInstance().getImpls();
@@ -74,7 +77,7 @@ public class Provider {
             }
         }
 
-        ServiceInvocationHandler handler = new ServiceInvocationHandler(clazz, connector);
+        ServiceInvocationHandler handler = new ServiceInvocationHandler(clazz, connector, mExchanger);
         Class<?> classType = handler.getClassType();
         Object proxy = Proxy.newProxyInstance(classType.getClassLoader(), new Class[]{classType}, handler);
         return (T) proxy;

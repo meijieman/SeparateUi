@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.baidu.common.util.Slog;
 import com.baidu.separate.protocol.BookService;
+import com.baidu.separate.protocol.Staff;
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.bean.Result;
 import com.baidu.separate.protocol.callback.OnBookListener;
@@ -59,19 +60,19 @@ public class BookServiceImpl implements BookService {
                     listener.onChanged(result);
                 }
 
-                Bundle bundle = new Bundle();
-                bundle.putInt("code", 100);
-                bundle.putString("msg", no + "移除成功 ");
-
-                int count = mCallbacks.beginBroadcast();
-                for (int i = 0; i < count; i++) {
-                    try {
-                        mCallbacks.getBroadcastItem(i).onChanged(bundle);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-                mCallbacks.finishBroadcast();
+//                Bundle bundle = new Bundle();
+//                bundle.putInt("code", 100);
+//                bundle.putString("msg", no + "移除成功 ");
+//
+//                int count = mCallbacks.beginBroadcast();
+//                for (int i = 0; i < count; i++) {
+//                    try {
+//                        mCallbacks.getBroadcastItem(i).onChanged(bundle);
+//                    } catch (RemoteException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                mCallbacks.finishBroadcast();
 
                 break;
             }
@@ -127,13 +128,22 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public boolean borrowBook(Staff staff) {
+        Slog.i("借书 " + staff.limit() + ", " + staff.days());
+        return true;
+    }
+
+    @Override
     public void register(OnBookListener listener) {
         Slog.i("listener " + listener);
+        if (listener == null) {
+            return;
+        }
         mListeners.add(listener);
     }
 
     @Override
-    public void onUnregister(OnBookListener listener) {
+    public void unregister(OnBookListener listener) {
         Slog.i("listener " + listener);
         // 跨进程注销普通 listener 存在问题
         mListeners.remove(listener);

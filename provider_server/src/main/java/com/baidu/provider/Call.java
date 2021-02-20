@@ -2,6 +2,8 @@ package com.baidu.provider;
 
 import java.util.Arrays;
 
+import com.baidu.common.util.Slog;
+
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -41,14 +43,17 @@ public class Call implements Parcelable {
         this.params = params;
     }
 
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(className);
         dest.writeString(methodName);
-        dest.writeSerializable(paramTypes);
-        dest.writeArray(params);
-        dest.writeArray(result);
+        try {
+            dest.writeSerializable(paramTypes);
+            dest.writeArray(params);
+            dest.writeArray(result);
+        } catch (Exception e) {
+            Slog.e("write ex " + e);
+        }
     }
 
     public void readFromParcel(Parcel in) {

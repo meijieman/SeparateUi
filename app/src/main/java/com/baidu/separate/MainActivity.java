@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (id == R.id.btn_register) {
             bookService.register(mListener);
         } else if (id == R.id.btn_unreg) {
-            bookService.onUnregister(mListener);
+            bookService.unregister(mListener);
         }
     }
 

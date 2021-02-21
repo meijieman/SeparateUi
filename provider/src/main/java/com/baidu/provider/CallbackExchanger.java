@@ -1,14 +1,14 @@
 package com.baidu.provider;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.baidu.common.util.Slog;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 
 /**
@@ -20,48 +20,51 @@ import android.os.Parcelable;
 
 public class CallbackExchanger {
 
-    private final Map<String, List<Object>> mMap = new HashMap<>(); // 方法，和调用这个方法的实例
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Map<Integer, Object> mMap = new HashMap<>(); // 对象的 hashcode，value 该对象
 
-    public void add(String key, Object obj) {
-        List<Object> objs = mMap.get(key);
-        if (objs == null) {
-            objs = new ArrayList<>();
-        }
-        objs.add(obj);
-        mMap.put(key, objs);
-    }
-
-    public void remove(String key, Object obj) {
-        List<Object> objs = mMap.get(key);
-        if (objs != null) {
-            objs.remove(obj);
-            mMap.put(key, objs);
+    public void add(Object obj) {
+        int key = obj.hashCode();
+        if (mMap.get(key) == null) {
+            mMap.put(key, obj);
+            Slog.i("add " + key + ", " + obj);
         }
     }
 
-    public void onChange(Bundle bundle) {
+    public void remove(Object obj) {
+        int key = obj.hashCode();
+        mMap.remove(key);
+        Slog.i("remove " + key);
+    }
+
+    public void onChanged(Bundle bundle) {
+        // 解决 android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
+        bundle.setClassLoader(getClass().getClassLoader());
+        Slog.i("onChange " + bundle);
         String method = bundle.getString("method");
         int objHash = bundle.getInt("objHash");
         Parcelable arg = bundle.getParcelable("arg");
         Slog.i("objHash " + objHash);
         Slog.i("method " + method);
-//        Slog.i("arg " + arg);
+        Slog.i("arg " + arg);
 
-//        List<Object> objs = mMap.get(method);
-//        for (Object obj : objs) {
-//            if (objHash == obj.hashCode()) {
-//                for (Method declaredMethod : obj.getClass().getDeclaredMethods()) {
-//                    if (method.equals(declaredMethod.getName())) {
-//                        try {
-//                            declaredMethod.invoke(obj, arg);
-//                        } catch (Exception e) {
-//                            Slog.e("回调转化发生异常 " + e);
-//                        }
-//                        break;
-//                    }
-//                }
-//                break;
-//            }
-//        }
+        Object obj = mMap.get(objHash);
+        if (obj == null) {
+            Slog.i("not found method instance. " + method);
+            return;
+        }
+        for (Method declaredMethod : obj.getClass().getDeclaredMethods()) {
+            if (method.equals(declaredMethod.getName())) {
+                // 切换到ui线程
+                mHandler.post(() -> {
+                    try {
+                        declaredMethod.invoke(obj, arg);
+                    } catch (Exception e) {
+                        Slog.e("回调转化发生异常 " + e);
+                    }
+                });
+                break;
+            }
+        }
     }
 }

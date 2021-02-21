@@ -173,6 +173,7 @@ public class ICallImpl extends ICall.Stub {
                         CallbackProxy item = mCallbackList.getBroadcastItem(i);
                         try {
                             Slog.d("发送更新 " + bundle);
+                            // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
                             item.onChange(bundle);
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -255,6 +256,7 @@ public class ICallImpl extends ICall.Stub {
                 arg = (Parcelable) args[0];
             }
             Bundle bundle = gen(objHash, method.getName(), arg);
+            bundle.setClassLoader(getClass().getClassLoader());
             Slog.i("回调 " + bundle);
             notifyCallback(bundle);
 
@@ -267,7 +269,7 @@ public class ICallImpl extends ICall.Stub {
         bundle.putString("method", method);
         bundle.putInt("objHash", objHash);
         if (arg != null) {
-//            bundle.putParcelable("arg", arg);
+            bundle.putParcelable("arg", arg);
         }
 
         return bundle;

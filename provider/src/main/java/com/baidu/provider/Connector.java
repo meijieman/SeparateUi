@@ -33,7 +33,7 @@ public class Connector {
         @Override
         public void onChange(Bundle bundle) throws RemoteException {
             Slog.i("onChange " + bundle);
-            mExchanger.onChange(bundle);
+            mExchanger.onChanged(bundle);
         }
     };
 

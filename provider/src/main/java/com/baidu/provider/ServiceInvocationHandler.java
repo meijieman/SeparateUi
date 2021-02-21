@@ -44,13 +44,12 @@ public class ServiceInvocationHandler implements InvocationHandler {
             String key = method.getName();
             // TODO: 2021/2/17 需要校验注册回调的参数实现了 Parcelable
             //  如果是基础类型咋办？？？
-            exchanger.add(key, args[0]);
+            exchanger.add(args[0]);
 
             // 将注册监听的对象的 hasCode 传过去，让服务端创建一个回调和其一一对应，当服务端的回调被调用的时候，回调 hasCode 对应的接口
             args[0] = args[0].hashCode();
         } else if (method.getName().startsWith("unregister")) {
-            String key = method.getName();
-            exchanger.remove(key, args[0]);
+            exchanger.remove(args[0]);
             args[0] = args[0].hashCode();
         }
         // 封装请求信息

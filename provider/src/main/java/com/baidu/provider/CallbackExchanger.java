@@ -40,13 +40,10 @@ public class CallbackExchanger {
     public void onChanged(Bundle bundle) {
         // 解决 android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
         bundle.setClassLoader(getClass().getClassLoader());
-        Slog.i("onChange " + bundle);
         String method = bundle.getString("method");
         int objHash = bundle.getInt("objHash");
         Parcelable arg = bundle.getParcelable("arg");
-        Slog.i("objHash " + objHash);
-        Slog.i("method " + method);
-        Slog.i("arg " + arg);
+        Slog.i("objHash " + objHash + ", method " + method + ", arg " + arg);
 
         Object obj = mMap.get(objHash);
         if (obj == null) {

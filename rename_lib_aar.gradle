@@ -1,0 +1,19 @@
+// 重命名生成的aar
+android.libraryVariants.all { variant ->
+    variant.outputs.all {
+        outputFileName = "${project.name}_${variant.name}_${releaseTime()}.aar"
+        println("==> outputFileName = " + outputFileName);
+    }
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMdd_HHmm")
+}
+
+
+task complile(){
+    println("==> compile")
+    def outputPath = [project.buildDir.absolutePath, "outputs", "aar"].join(File.separator)
+//    delete project.buildDir
+    delete outputPath
+}

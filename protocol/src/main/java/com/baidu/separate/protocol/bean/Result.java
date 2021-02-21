@@ -57,7 +57,7 @@ public class Result implements Parcelable {
         return "Result{" +
                 "code=" + code +
                 ", msg='" + msg + '\'' +
-                '}';
+                "} " + hashCode();
     }
 
     @Override

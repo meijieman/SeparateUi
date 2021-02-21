@@ -55,7 +55,7 @@ public class BookServiceImpl implements BookService {
                 result.setCode(100);
                 result.setMsg(no + "移除成功 ");
 
-                Slog.i("result " + result);
+                Slog.i("result " + result + ", size " + mListeners.size());
                 for (OnBookListener listener : mListeners) {
                     listener.onChanged(result);
                 }

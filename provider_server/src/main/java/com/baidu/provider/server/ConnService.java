@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.Process;
 
-import androidx.annotation.Nullable;
-
 /**
  * TODO
  *
@@ -23,7 +21,6 @@ public class ConnService extends android.app.Service {
         Slog.i("onCreate pid " + Process.myPid());
     }
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         ICallImpl iCall = new ICallImpl();

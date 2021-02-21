@@ -160,9 +160,9 @@ public class ICallImpl extends ICall.Stub {
 
     public void notifyCallback(Bundle bundle) {
         Slog.v("更新 " + bundle);
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
+//        mHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
                 // java.lang.IllegalStateException: beginBroadcast() called while already in a broadcast
                 try {
                     int count = mCallbackList.beginBroadcast();
@@ -185,8 +185,8 @@ public class ICallImpl extends ICall.Stub {
                 } finally {
                     mCallbackList.finishBroadcast();
                 }
-            }
-        });
+//            }
+//        });
 
     }
 

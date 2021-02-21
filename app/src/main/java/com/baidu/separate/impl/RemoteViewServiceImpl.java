@@ -1,9 +1,9 @@
 package com.baidu.separate.impl;
 
 import com.baidu.common.util.Slog;
-import com.baidu.separate.protocol.RemoteViewService;
 import com.baidu.separate.App;
 import com.baidu.separate.MainActivity;
+import com.baidu.separate.protocol.RemoteViewService;
 
 import android.os.Bundle;
 import android.os.Process;
@@ -21,7 +21,7 @@ public class RemoteViewServiceImpl implements RemoteViewService {
 
     @Override
     public void sendData(Bundle bundle) {
-        RemoteViews remoteView = bundle.getParcelable("xxx");
+        RemoteViews remoteView = bundle.getParcelable("remote_view");
         Slog.i("收到数据 remoteView " + remoteView);
 
         View view = remoteView.apply(App.getContext(), null);

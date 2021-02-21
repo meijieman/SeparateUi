@@ -56,8 +56,8 @@ com.baidu.provider.server.Test3
 
 
 
-
-
+Android通过RemoteViews实现跨进程更新UI
+https://blog.csdn.net/chenzheng8975/article/details/54969791
 
 
 

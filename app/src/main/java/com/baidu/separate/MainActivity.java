@@ -46,17 +46,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 初始化
         Provider.getInstance().init(MainActivity.this, false);
 
-        mOnTransform = new OnTransform() {
-            @Override
-            public void onReceived(View view) {
-                Slog.i("view 收到 " + view + ", pid " + Process.myPid());
-                fl.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        fl.addView(view);
-                    }
-                });
-            }
+        mOnTransform = view -> {
+            Slog.i("view 收到 " + view + ", pid " + Process.myPid());
+            fl.post(() -> {
+                fl.removeAllViews();
+                fl.addView(view);
+            });
         };
     }
 
@@ -78,14 +73,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
         } else if (id == R.id.btn_count) {
+            long start = System.currentTimeMillis();
             int count = bookService.getCount();
             Slog.w("count " + count);
             mText.setText("总数 " + count);
-
+            Slog.w("time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_register) {
+            long start = System.currentTimeMillis();
             bookService.register(mListener);
+            Slog.w("time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_unreg) {
+            long start = System.currentTimeMillis();
             bookService.unregister(mListener);
+            Slog.w("time used: " + (System.currentTimeMillis() - start));
         }
     }
 

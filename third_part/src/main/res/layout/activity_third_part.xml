@@ -82,6 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="通用注册"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/btn_unreg"
         app:layout_constraintTop_toBottomOf="@+id/btn_unreg" />
 
@@ -91,6 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="通用反注册"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/btn_reg_comm"
         app:layout_constraintTop_toBottomOf="@+id/btn_reg_comm" />
 
@@ -101,5 +103,5 @@
         android:layout_marginTop="10dp"
         android:text="更新远程view"
         app:layout_constraintStart_toStartOf="@+id/btn_unreg"
-        app:layout_constraintTop_toBottomOf="@+id/btn_unreg_comm" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_unreg" />
 </androidx.constraintlayout.widget.ConstraintLayout>

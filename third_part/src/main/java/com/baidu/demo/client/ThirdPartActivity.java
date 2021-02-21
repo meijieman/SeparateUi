@@ -48,13 +48,20 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            // 界面显示在其他进程，单其逻辑还运行在本进程
             Slog.i("点击按钮===");
             ToastUtil.getInstance().showShort("点击按钮");
+            mRemoteView.setTextViewText(R.id.tv_text, "" + System.currentTimeMillis() % 100);
+            Bundle b = new Bundle();
+            b.putParcelable("remote_view", mRemoteView);
+
+            RemoteViewService remoteViewService = Provider.getInstance().get(RemoteViewService.class);
+            remoteViewService.sendData(b);
         }
     };
 
-    private int mNo;
     private TextView mText;
+    private RemoteViews mRemoteView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +81,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         mText = findViewById(R.id.tv_text);
         ImageView img = findViewById(R.id.iv_img);
 
+        ToastUtil.getInstance().init(this);
         Slog.i("onCreate");
         // 初始化
         Provider.getInstance().init(getApplicationContext(), true);
@@ -98,8 +106,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             long start = System.currentTimeMillis();
 
             Book book = new Book();
-//            book.setNo(mNo++);
-            book.setNo(mNo);
+            book.setNo(0);
             book.setName("第一行代码" + start);
             book.setAvailable(true);
 
@@ -130,14 +137,15 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         } else if (id == R.id.btn_remote_view) {
             RemoteViewService remoteViewService = Provider.getInstance().get(RemoteViewService.class);
 
-            RemoteViews remoteView = new RemoteViews(getPackageName(), R.layout.layout_notification);
+            mRemoteView = new RemoteViews(getPackageName(), R.layout.layout_notification);
+            mRemoteView.setTextViewText(R.id.tv_text, "title");
             Intent intent = new Intent(ACTION_CLICK);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-            remoteView.setOnClickPendingIntent(R.id.btn_add, pendingIntent);
-            Slog.i("发送数据 remoteView " + remoteView + ", pid " + Process.myPid());
+            mRemoteView.setOnClickPendingIntent(R.id.btn_add, pendingIntent);
+            Slog.i("发送数据 remoteView " + mRemoteView + ", pid " + Process.myPid());
 
             Bundle b = new Bundle();
-            b.putParcelable("xxx", remoteView);
+            b.putParcelable("remote_view", mRemoteView);
             remoteViewService.sendData(b);
         }
     }

@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import com.baidu.provider.JavapUtil;
+
 import org.junit.Test;
 
 /**
@@ -20,6 +22,7 @@ public class Test5 {
 
         Class<?> myCallbackClazz = Test5.MyLibrary.MyCallback.class;
 
+        // 不编写实现类，直接在运行期创建某个interface的实例
         Test5.MyHandler myHandler = new Test5.MyHandler();//类
         Test5.MyLibrary.MyCallback myCallback = (Test5.MyLibrary.MyCallback) Proxy.newProxyInstance(
                 Test5.class.getClassLoader(),//类加载器
@@ -57,10 +60,32 @@ public class Test5 {
             System.out.println("doing MyLibrary mainMethod...");
             myCallback.doMyCallback();
             System.out.println("==============");
-            System.out.println(myCallback.toString()); // 这个酒很搞人了，返回的为 null；如何才能返回动态对象的 toString 方法呢；
+//            System.out.println(myCallback.toString()); // 这个就很搞人了，返回的为 null；如何才能返回动态对象的 toString 方法呢；
 //            Class<? extends MyCallback> aClass = myCallback.getClass();
 //            System.out.println("class " + aClass);
         }
+    }
+
+    @Test
+    public void test1() {
+        Method[] methods = MyLibrary.class.getDeclaredMethods();
+        for (Method method : methods) {
+            System.out.println("方法 " + method);
+            System.out.println(JavapUtil.getSignature(method));
+        }
+
+        System.out.println("==============");
+
+        Method[] methods2 = getClass().getDeclaredMethods();
+        for (Method method : methods2) {
+            System.out.println("方法 " + method);
+            System.out.println(JavapUtil.getSignature(method));
+        }
+    }
+
+    @Test
+    public void test2() {
+
     }
 
 }

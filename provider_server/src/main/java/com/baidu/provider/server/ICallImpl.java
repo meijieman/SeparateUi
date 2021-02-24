@@ -95,19 +95,20 @@ public class ICallImpl extends ICall.Stub {
 
                 // 创建实现类注册到
                 Class<?> paramsType = paramsTypes[0];
-                Object o;
+                Object serviceProxy;
                 MyHandler2 h2 = new MyHandler2(objHash);
-                Object realProxy = Proxy.newProxyInstance(invoker.getClass().getClassLoader(), new Class[]{paramsType},
-                        h2);
-                MyHandler h = new MyHandler(realProxy);
+                Object callbackProxy = Proxy.newProxyInstance(invoker.getClass().getClassLoader(),
+                        new Class[]{paramsType}, h2);
+                MyHandler h = new MyHandler(callbackProxy);
                 if (paramsType.isInterface()) {
                     // 如果是接口，使用动态代理创建其实现类
-                    o = Proxy.newProxyInstance(invoker.getClass().getClassLoader(), new Class[]{paramsType}, h);
+                    serviceProxy = Proxy.newProxyInstance(invoker.getClass().getClassLoader(), new Class[]{paramsType}, h);
                 } else {
-                    o = paramsType.newInstance();
+                    // FIXME: 2021/2/22
+                    serviceProxy = paramsType.newInstance();
                 }
-                mMapping.put(objHash, o);
-                params[0] = o;
+                mMapping.put(objHash, serviceProxy);
+                params[0] = serviceProxy;
             } else if (method.getName().startsWith("unregister")) {
                 Integer objHash = null;
                 for (int key : mMapping.keySet()) {
@@ -158,7 +159,7 @@ public class ICallImpl extends ICall.Stub {
         mCallbackList.unregister(proxy);
     }
 
-    public void notifyCallback(Bundle bundle) {
+    private void notifyCallback(Bundle bundle) {
         Slog.v("更新 " + bundle);
 //        mHandler.post(new Runnable() {
 //            @Override

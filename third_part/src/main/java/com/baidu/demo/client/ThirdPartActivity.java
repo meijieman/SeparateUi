@@ -1,16 +1,5 @@
 package com.baidu.demo.client;
 
-import com.baidu.common.util.Slog;
-import com.baidu.common.util.ToastUtil;
-import com.baidu.provider.Provider;
-import com.baidu.separate.protocol.BookService;
-import com.baidu.separate.protocol.RemoteViewService;
-import com.baidu.separate.protocol.WeatherService;
-import com.baidu.separate.protocol.bean.Book;
-import com.baidu.separate.protocol.bean.Result;
-import com.baidu.separate.protocol.callback.OnBookListener;
-import com.baidu.separate.protocol.callback.OnCommonCallback;
-
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,7 +15,20 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class ThirdPartActivity extends AppCompatActivity implements View.OnClickListener {
+import com.baidu.common.util.Slog;
+import com.baidu.common.util.ToastUtil;
+import com.baidu.provider.Provider;
+import com.baidu.separate.protocol.BookService;
+import com.baidu.separate.protocol.OnViewShow;
+import com.baidu.separate.protocol.RemoteViewService;
+import com.baidu.separate.protocol.WeatherService;
+import com.baidu.separate.protocol.bean.Book;
+import com.baidu.separate.protocol.bean.Result;
+import com.baidu.separate.protocol.bean.Student;
+import com.baidu.separate.protocol.callback.OnBookListener;
+import com.baidu.separate.protocol.callback.OnCommonCallback;
+
+public class ThirdPartActivity extends AppCompatActivity implements View.OnClickListener, OnViewShow {
 
     public static final String ACTION_CLICK = "action_click";
 
@@ -120,6 +122,13 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             int count = bookService.getCount();
             Slog.w("count " + count);
             mText.setText("总数 " + count);
+
+            Student student = new Student();
+            boolean result = bookService.borrowBook(student);
+            Slog.i("borrow result " + result);
+
+//            bookService.registerView(this);
+
         } else if (id == R.id.btn_register) {
             // FIXME: 2021/1/27 不支持回调中设置为 Serializable，为什么支持 ArrayList 呢？
             //  java.lang.RuntimeException: Parcelable encountered ClassNotFoundException reading a Serializable object (name = com.baidu.demo.client.-$$Lambda$ThirdPartActivity$FCOslk6SrLTXtREJt5DrDBTydb4)
@@ -156,4 +165,8 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
 
     }
 
+    @Override
+    public void onShow(String data) {
+        ToastUtil.getInstance().showShort(" " + data);
+    }
 }

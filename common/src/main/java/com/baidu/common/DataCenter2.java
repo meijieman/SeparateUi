@@ -39,7 +39,7 @@ public class DataCenter2 {
             Slog.i("getImpls");
             return (T) obj;
         } else {
-            // 2021/2/6  如果传入的是子接口，向下查找其子接口，在 mMap 中查找是否有实现类
+            // 2021/2/6  如果传入的是父接口，向下查找其子接口，在 mMap 中查找是否有实现类
             Set<Class<?>> classes = mMap.keySet();
             for (Class<?> aClass : classes) {
                 if (clazz.isAssignableFrom(aClass)) {

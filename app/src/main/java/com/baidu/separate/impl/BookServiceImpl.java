@@ -1,10 +1,10 @@
 package com.baidu.separate.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.os.RemoteCallbackList;
 
 import com.baidu.common.util.Slog;
 import com.baidu.separate.protocol.BookService;
+import com.baidu.separate.protocol.OnViewShow;
 import com.baidu.separate.protocol.Staff;
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.bean.Result;
@@ -14,9 +14,8 @@ import com.baidu.separate.protocol.callback.OnCommonCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.os.Bundle;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO
@@ -54,7 +53,9 @@ public class BookServiceImpl implements BookService {
                 Result result = new Result();
                 result.setCode(100);
                 result.setMsg(no + "移除成功 ");
-
+                if (mShow != null) {
+                    mShow.onShow("移除成功 book " + book);
+                }
                 Slog.i("result " + result + ", size " + mListeners.size());
                 for (OnBookListener listener : mListeners) {
                     listener.onChanged(result);
@@ -147,6 +148,13 @@ public class BookServiceImpl implements BookService {
         Slog.i("listener " + listener);
         // 跨进程注销普通 listener 存在问题
         mListeners.remove(listener);
+    }
+
+private OnViewShow mShow;
+
+    @Override
+    public void registerView(OnViewShow show) {
+        mShow = show;
     }
 
     @Override

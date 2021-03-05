@@ -3,7 +3,9 @@ package com.baidu.provider.server;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -29,6 +31,11 @@ public class Test7 {
                 System.out.println(method);
                 if (method.getName().equals("morning")) {
                     System.out.println("Good morning, " + args[0]);
+                }
+
+                if (proxy != null) {
+//                    System.out.println("proxy nonnull " + proxy); // 会调用 proxy.toString
+                    System.out.println("proxy nonnull " + proxy.getClass());
                 }
 
                 return proxy;
@@ -69,5 +76,59 @@ public class Test7 {
                 throwable.printStackTrace();
             }
         }
+    }
+
+    @Test
+    public void test1() {
+        final List<OnResultListener> listeners = new ArrayList<>();
+
+        // 方法内的 class
+        class H implements InvocationHandler {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if ("onResult".equals(method.getName())) {
+                    for (OnResultListener listener : listeners) {
+                        Object invoke = method.invoke(listener, args);
+                        System.out.println("invoke " + invoke);
+//                        listener.onResult((String) args[0]);
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        listeners.add(new OnResultListener() {
+            @Override
+            public void onResult(String rst) {
+                System.out.println("111 invoked " + rst);
+            }
+        });
+        listeners.add(new OnResultListener() {
+            @Override
+            public void onResult(String rst) {
+                System.out.println("222 invoked " + rst);
+            }
+        });
+        listeners.add(new OnResultListener() {
+            @Override
+            public void onResult(String rst) {
+                System.out.println("333 invoked " + rst);
+            }
+        });
+
+        OnResultListener listener = (OnResultListener) Proxy.newProxyInstance(
+                OnResultListener.class.getClassLoader(), // 传入ClassLoader
+                new Class[]{OnResultListener.class}, // 传入要实现的接口
+                new H());
+
+        System.out.println(listener.getClass());
+//        System.out.println("toString " + listener.toString());
+        listener.onResult("执行成功");
+
+    }
+
+    interface OnResultListener {
+        void onResult(String rst);
     }
 }

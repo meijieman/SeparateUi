@@ -37,4 +37,5 @@ public interface BookService extends NameService {
 
     void unregister(OnBookListener listener);
 
+    void registerView(OnViewShow show);
 }

@@ -1,12 +1,10 @@
 package com.baidu.provider.server;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.Process;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 
 import com.baidu.common.DataCenter;
 import com.baidu.common.util.Slog;
@@ -14,13 +12,13 @@ import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
 import com.baidu.provider.ICall;
 
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Parcelable;
-import android.os.Process;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TODO
@@ -30,7 +28,6 @@ import android.os.RemoteException;
  */
 
 public class ICallImpl extends ICall.Stub {
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public ICallImpl() {
         Slog.d("pid " + Process.myPid());
@@ -54,8 +51,8 @@ public class ICallImpl extends ICall.Stub {
             List<Object> mImpls = DataCenter.getInstance().getImpls();
             if (mImpls.isEmpty()) {
                 Slog.e("默认初始化失败");
-                mImpls.add(Class.forName("com.baidu.protocol.BookServiceImpl").newInstance());
-                mImpls.add(Class.forName("com.baidu.protocol.RemoteViewServiceImpl").newInstance());
+//                mImpls.add(Class.forName("com.baidu.protocol.BookServiceImpl").newInstance());
+//                mImpls.add(Class.forName("com.baidu.protocol.RemoteViewServiceImpl").newInstance());
             }
             Slog.d("mImpls size " + mImpls.size());
 
@@ -161,33 +158,27 @@ public class ICallImpl extends ICall.Stub {
 
     private void notifyCallback(Bundle bundle) {
         Slog.v("更新 " + bundle);
-//        mHandler.post(new Runnable() {
-//            @Override
-//            public void run() {
-                // java.lang.IllegalStateException: beginBroadcast() called while already in a broadcast
+        try {
+            int count = mCallbackList.beginBroadcast();
+            if (count == 0) {
+                return;
+            }
+            for (int i = 0; i < count; i++) {
+                CallbackProxy item = mCallbackList.getBroadcastItem(i);
                 try {
-                    int count = mCallbackList.beginBroadcast();
-                    if (count == 0) {
-                        return;
-                    }
-                    for (int i = 0; i < count; i++) {
-                        CallbackProxy item = mCallbackList.getBroadcastItem(i);
-                        try {
-                            Slog.d("发送更新 " + bundle);
-                            // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
-                            item.onChange(bundle);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (Exception e) {
+                    Slog.d("发送更新 " + bundle);
+                    // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
+                    item.onChange(bundle);
+                } catch (RemoteException e) {
                     e.printStackTrace();
-                    Slog.e("报错啦 " + e);
-                } finally {
-                    mCallbackList.finishBroadcast();
                 }
-//            }
-//        });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Slog.e("报错啦 " + e);
+        } finally {
+            mCallbackList.finishBroadcast();
+        }
 
     }
 
@@ -252,11 +243,23 @@ public class ICallImpl extends ICall.Stub {
                 // 无法拿到动态代理对象的 toString，hashCode 方法，可以将 InvocationHandler 和 代理对象绑定，然后返回 InvocationHandler 的对应方法
                 return method.invoke(this, args);
             }
+            Class<?>[] types = method.getParameterTypes();
+            if (args.length != types.length) {
+                throw new RuntimeException("参数列表错误");
+            }
             Parcelable arg = null;
             if (args != null && args.length > 0) {
                 arg = (Parcelable) args[0];
             }
             Bundle bundle = gen(objHash, method.getName(), arg);
+
+//            Bundle bundle = new Bundle();
+//            for (int i = 0; i < types.length; i++) {
+//                putData(bundle, types[i], args[i]);
+//            }
+//            bundle.putString("method", method.getName());
+//            bundle.putInt("objHash", objHash);
+
             bundle.setClassLoader(getClass().getClassLoader());
             Slog.i("回调 " + bundle);
             notifyCallback(bundle);
@@ -274,6 +277,34 @@ public class ICallImpl extends ICall.Stub {
         }
 
         return bundle;
+    }
+
+    private void putData(Bundle bundle, Class<?> type, Object arg) {
+        if (type.isAssignableFrom(Parcelable.class)) {
+            bundle.putParcelable(type.getName(), (Parcelable) arg);
+        } else if (type.isAssignableFrom(String.class)) {
+            bundle.putString(type.getName(), (String) arg);
+        } else if (type.isAssignableFrom(int.class)) {
+            bundle.putInt(type.getName(), (int) arg);
+        } else if (type.isAssignableFrom(int[].class)) {
+            bundle.putIntArray(type.getName(), (int[]) arg);
+        } else if (type.isAssignableFrom(short.class)) {
+            bundle.putShort(type.getName(), (short) arg);
+        } else if (type.isAssignableFrom(long.class)) {
+            bundle.putLong(type.getName(), (long) arg);
+        } else if (type.isAssignableFrom(float.class)) {
+            bundle.putFloat(type.getName(), (float) arg);
+        } else if (type.isAssignableFrom(double.class)) {
+            bundle.putDouble(type.getName(), (double) arg);
+        } else if (type.isAssignableFrom(byte.class)) {
+            bundle.putByte(type.getName(), (byte) arg);
+        } else if (type.isAssignableFrom(char.class)) {
+            bundle.putChar(type.getName(), (char) arg);
+        } else if (type.isAssignableFrom(boolean.class)) {
+            bundle.putBoolean(type.getName(), (boolean) arg);
+        } else {
+            Slog.e("other type " + type);
+        }
     }
 
 }

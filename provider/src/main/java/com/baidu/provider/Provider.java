@@ -2,7 +2,6 @@ package com.baidu.provider;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.concurrent.Exchanger;
 
 import com.baidu.common.DataCenter;
 
@@ -75,6 +74,7 @@ public class Provider {
                     return (T) impl;
                 }
             }
+            throw new RuntimeException("进程内请先调用 DataCenter2.getInstance#add 添加对应实现类");
         }
 
         ServiceInvocationHandler handler = new ServiceInvocationHandler(clazz, connector, mExchanger);

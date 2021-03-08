@@ -1,9 +1,9 @@
 package com.baidu.provider.server;
 
+import org.junit.Test;
+
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
-
-import org.junit.Test;
 
 /**
  * TODO

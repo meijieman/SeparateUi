@@ -150,7 +150,7 @@ public class BookServiceImpl implements BookService {
         mListeners.remove(listener);
     }
 
-private OnViewShow mShow;
+    private OnViewShow mShow;
 
     @Override
     public void registerView(OnViewShow show) {

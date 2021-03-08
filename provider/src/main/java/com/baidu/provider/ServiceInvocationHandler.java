@@ -1,9 +1,9 @@
 package com.baidu.provider;
 
+import com.baidu.common.util.Slog;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-
-import com.baidu.common.util.Slog;
 
 public class ServiceInvocationHandler implements InvocationHandler {
 

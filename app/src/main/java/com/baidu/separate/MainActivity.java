@@ -1,12 +1,5 @@
 package com.baidu.separate;
 
-import com.baidu.common.util.Slog;
-import com.baidu.provider.Provider;
-import com.baidu.separate.protocol.BookService;
-import com.baidu.separate.protocol.bean.Book;
-import com.baidu.separate.protocol.bean.Result;
-import com.baidu.separate.protocol.callback.OnBookListener;
-
 import android.os.Bundle;
 import android.os.Process;
 import android.view.View;
@@ -15,6 +8,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.baidu.common.util.Slog;
+import com.baidu.provider.Provider;
+import com.baidu.separate.protocol.BookService;
+import com.baidu.separate.protocol.bean.Book;
+import com.baidu.separate.protocol.bean.Result;
+import com.baidu.separate.protocol.callback.OnBookListener;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 

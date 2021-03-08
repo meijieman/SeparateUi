@@ -1,10 +1,10 @@
 package com.baidu.provider.server;
 
+import org.junit.Test;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import org.junit.Test;
 
 /**
  * java利用反射为接口实例化对象并调用

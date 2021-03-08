@@ -1,11 +1,11 @@
 package com.baidu.provider;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
+import android.content.Context;
 
 import com.baidu.common.DataCenter;
 
-import android.content.Context;
+import java.lang.reflect.Proxy;
+import java.util.List;
 
 /**
  * 客户端数据提供者

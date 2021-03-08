@@ -1,11 +1,5 @@
 package com.baidu.provider;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import com.baidu.common.util.Slog;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +8,12 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.baidu.common.util.Slog;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 负责创建链接

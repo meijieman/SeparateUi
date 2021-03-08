@@ -1,15 +1,15 @@
 package com.baidu.provider;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.baidu.common.util.Slog;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+
+import com.baidu.common.util.Slog;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 交换本地callback 和远程 callback（本地 callback 不能跨进程，远程的 callback 可以）

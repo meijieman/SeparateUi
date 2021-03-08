@@ -1,9 +1,9 @@
 package com.baidu.separate.protocol;
 
-import java.util.List;
-
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.callback.OnBookListener;
+
+import java.util.List;
 
 /**
  * TODO

@@ -1,11 +1,11 @@
 package com.baidu.provider;
 
-import java.util.Arrays;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.baidu.common.util.Slog;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.util.Arrays;
 
 /**
  * Java中如何动态创建接口的实现

@@ -1,9 +1,9 @@
 package com.baidu.separate.protocol.bean;
 
-import com.baidu.separate.protocol.Staff;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.baidu.separate.protocol.Staff;
 
 /**
  * TODO

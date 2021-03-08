@@ -1,10 +1,10 @@
 package com.baidu.common;
 
+import com.baidu.common.util.Slog;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import com.baidu.common.util.Slog;
 
 /**
  * DataCenter 优化版

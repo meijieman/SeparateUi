@@ -1,11 +1,11 @@
 package com.baidu.common;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Process;
 
 import com.baidu.common.util.Slog;
 
-import android.os.Process;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO

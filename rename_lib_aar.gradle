@@ -11,7 +11,7 @@ static def releaseTime() {
 }
 
 
-task complile(){
+task complile() {
     println("==> compile")
     def outputPath = [project.buildDir.absolutePath, "outputs", "aar"].join(File.separator)
 //    delete project.buildDir

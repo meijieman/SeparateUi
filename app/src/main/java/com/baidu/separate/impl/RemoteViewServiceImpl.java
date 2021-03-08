@@ -1,14 +1,14 @@
 package com.baidu.separate.impl;
 
-import com.baidu.common.util.Slog;
-import com.baidu.separate.App;
-import com.baidu.separate.MainActivity;
-import com.baidu.separate.protocol.RemoteViewService;
-
 import android.os.Bundle;
 import android.os.Process;
 import android.view.View;
 import android.widget.RemoteViews;
+
+import com.baidu.common.util.Slog;
+import com.baidu.separate.App;
+import com.baidu.separate.MainActivity;
+import com.baidu.separate.protocol.RemoteViewService;
 
 /**
  * TODO

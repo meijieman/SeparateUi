@@ -1,10 +1,10 @@
 package com.baidu.provider.server;
 
-import com.baidu.common.util.Slog;
-
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Process;
+
+import com.baidu.common.util.Slog;
 
 /**
  * TODO

@@ -1,13 +1,13 @@
 package com.baidu.separate;
 
+import android.app.Application;
+import android.os.Process;
+
 import com.baidu.common.DataCenter;
 import com.baidu.common.util.Slog;
 import com.baidu.separate.impl.BookServiceImpl;
 import com.baidu.separate.impl.RemoteViewServiceImpl;
 import com.baidu.separate.impl.WeatherServiceImpl;
-
-import android.app.Application;
-import android.os.Process;
 
 /**
  * TODO

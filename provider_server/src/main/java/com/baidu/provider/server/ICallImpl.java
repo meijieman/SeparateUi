@@ -12,6 +12,7 @@ import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
 import com.baidu.provider.ICall;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -140,7 +141,6 @@ public class ICallImpl extends ICall.Stub {
         }
 
         Slog.v("发送结果 " + call);
-        Slog.v("计算结果 result " + call.getResult());
         return call;
     }
 
@@ -213,6 +213,7 @@ public class ICallImpl extends ICall.Stub {
         }
     }*/
 
+    // 注册回调对象的代理类
     private static class MyHandler implements InvocationHandler {
         private final Object proxy;
 
@@ -225,11 +226,18 @@ public class ICallImpl extends ICall.Stub {
             // 为什么会调用到  public java.lang.String java.lang.Object.toString()
             // 因为 com.baidu.separate.impl.BookServiceImpl.register 方法打印了 listener
 
-            Slog.i("回调被调用 , method " + method + ", " + Arrays.toString(args));
-            return method.invoke(this.proxy, args);
+            Slog.i("回调被调用, method " + method + ", " + Arrays.toString(args));
+            try {
+                return method.invoke(this.proxy, args);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Slog.e("回调异常 " + e);
+            }
+            return null;
         }
     }
 
+    // 回调对象的代理类
     class MyHandler2 implements InvocationHandler {
         private final Integer objHash;
 
@@ -243,22 +251,23 @@ public class ICallImpl extends ICall.Stub {
                 // 无法拿到动态代理对象的 toString，hashCode 方法，可以将 InvocationHandler 和 代理对象绑定，然后返回 InvocationHandler 的对应方法
                 return method.invoke(this, args);
             }
+            Slog.i("回调代理, method " + method + ", " + Arrays.toString(args));
             Class<?>[] types = method.getParameterTypes();
             if (args.length != types.length) {
                 throw new RuntimeException("参数列表错误");
             }
-            Parcelable arg = null;
-            if (args != null && args.length > 0) {
-                arg = (Parcelable) args[0];
-            }
-            Bundle bundle = gen(objHash, method.getName(), arg);
-
-//            Bundle bundle = new Bundle();
-//            for (int i = 0; i < types.length; i++) {
-//                putData(bundle, types[i], args[i]);
+//            Parcelable arg = null;
+//            if (args != null && args.length > 0) {
+//                arg = (Parcelable) args[0];
 //            }
-//            bundle.putString("method", method.getName());
-//            bundle.putInt("objHash", objHash);
+//            Bundle bundle = gen(objHash, method.getName(), arg);
+
+            Bundle bundle = new Bundle();
+            bundle.putString("method", method.getName());
+            bundle.putInt("objHash", objHash);
+            for (int i = 0; i < types.length; i++) {
+                putParamsData(bundle, types[i], args[i]);
+            }
 
             bundle.setClassLoader(getClass().getClassLoader());
             Slog.i("回调 " + bundle);
@@ -279,28 +288,30 @@ public class ICallImpl extends ICall.Stub {
         return bundle;
     }
 
-    private void putData(Bundle bundle, Class<?> type, Object arg) {
-        if (type.isAssignableFrom(Parcelable.class)) {
+    private void putParamsData(Bundle bundle, Class<?> type, Object arg) {
+        if (Parcelable.class.isAssignableFrom(type)) {
             bundle.putParcelable(type.getName(), (Parcelable) arg);
-        } else if (type.isAssignableFrom(String.class)) {
+        } else if (Serializable.class.isAssignableFrom(type)) {
+            bundle.putSerializable(type.getName(), (Serializable) arg);
+        } else if (String.class.isAssignableFrom(type)) {
             bundle.putString(type.getName(), (String) arg);
-        } else if (type.isAssignableFrom(int.class)) {
+        } else if (int.class.isAssignableFrom(type)) {
             bundle.putInt(type.getName(), (int) arg);
-        } else if (type.isAssignableFrom(int[].class)) {
+        } else if (int[].class.isAssignableFrom(type)) {
             bundle.putIntArray(type.getName(), (int[]) arg);
-        } else if (type.isAssignableFrom(short.class)) {
+        } else if (short.class.isAssignableFrom(type)) {
             bundle.putShort(type.getName(), (short) arg);
-        } else if (type.isAssignableFrom(long.class)) {
+        } else if (long.class.isAssignableFrom(type)) {
             bundle.putLong(type.getName(), (long) arg);
-        } else if (type.isAssignableFrom(float.class)) {
+        } else if (float.class.isAssignableFrom(type)) {
             bundle.putFloat(type.getName(), (float) arg);
-        } else if (type.isAssignableFrom(double.class)) {
+        } else if (double.class.isAssignableFrom(type)) {
             bundle.putDouble(type.getName(), (double) arg);
-        } else if (type.isAssignableFrom(byte.class)) {
+        } else if (byte.class.isAssignableFrom(type)) {
             bundle.putByte(type.getName(), (byte) arg);
-        } else if (type.isAssignableFrom(char.class)) {
+        } else if (char.class.isAssignableFrom(type)) {
             bundle.putChar(type.getName(), (char) arg);
-        } else if (type.isAssignableFrom(boolean.class)) {
+        } else if (boolean.class.isAssignableFrom(type)) {
             bundle.putBoolean(type.getName(), (boolean) arg);
         } else {
             Slog.e("other type " + type);

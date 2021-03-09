@@ -25,8 +25,11 @@ import com.baidu.separate.protocol.WeatherService;
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.bean.Result;
 import com.baidu.separate.protocol.bean.Student;
+import com.baidu.separate.protocol.bean.WeatherPayload;
 import com.baidu.separate.protocol.callback.OnBookListener;
 import com.baidu.separate.protocol.callback.OnCommonCallback;
+
+import java.util.ArrayList;
 
 public class ThirdPartActivity extends AppCompatActivity implements View.OnClickListener, OnViewShow {
 
@@ -35,7 +38,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            Slog.i("result " + result);
+            Slog.i("回调 " + result);
             mText.setText("收到更新 " + result);
         }
     };
@@ -77,6 +80,8 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btn_unreg).setOnClickListener(this);
         findViewById(R.id.btn_reg_comm).setOnClickListener(this);
         findViewById(R.id.btn_unreg_comm).setOnClickListener(this);
+        findViewById(R.id.btn_serializable).setOnClickListener(this);
+        findViewById(R.id.btn_reg_seri).setOnClickListener(this);
 
         findViewById(R.id.btn_remote_view).setOnClickListener(this);
 
@@ -156,13 +161,36 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             Bundle b = new Bundle();
             b.putParcelable("remote_view", mRemoteView);
             remoteViewService.sendData(b);
+        } else if (id == R.id.btn_serializable) {
+            method();
+        } else if (id == R.id.btn_reg_seri) {
+            WeatherService service = Provider.getInstance().get(WeatherService.class);
+            long start = System.currentTimeMillis();
+            service.registerCallback(payload -> {
+                // 回调
+                Slog.i("天气回调 " + payload);
+            });
+            Slog.w("time used: " + (System.currentTimeMillis() - start));
         }
     }
 
     void method() {
         WeatherService service = Provider.getInstance().get(WeatherService.class);
-        String weather = service.getWeather();
+//        String weather = service.getWeather();
 
+        WeatherPayload payload = new WeatherPayload();
+        payload.setCity("深圳");
+        WeatherPayload.WeatherForecastBean bean = new WeatherPayload.WeatherForecastBean();
+        bean.setDate("2021-03-08");
+        payload.setBean(bean);
+        ArrayList<WeatherPayload.WeatherForecastBean> list = new ArrayList<>();
+        list.add(bean);
+        payload.setWeatherForecast(list);
+
+        long start = System.currentTimeMillis();
+        WeatherPayload weatherPayload = service.showBodyView(payload);
+        Slog.i("weatherPayload " + weatherPayload);
+        Slog.w("time used: " + (System.currentTimeMillis() - start));
     }
 
     @Override

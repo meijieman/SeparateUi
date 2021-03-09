@@ -33,9 +33,11 @@
 对于 register 开头的注册方法，如果参数类型为对象形式，则将其包装为 Call，传过去后再拆出来，封装成一个对象保存到 Map 中，可解决 register 失败的问题
 
 ## 注册回调的注意事项
-1. 注册的回调方法需要以 register 开头，反注册需要以 unregister 开头
+1. 注册的回调方法需要以 register 开头，反注册需要以 unregister 开头，注册的对象的方法需要使用 on 开头
 2. 方法的参数如果包含对象，需要实现 Parcelable
 3. 注册的回调接口不需要定义为 aidl，在实现类中使用不需要使用 RemoteCallbackList
+4. 远程方法调用参数可以为 Serializable 的对象，其中包含的成员变量如果是对象，需要实现 Serializable
+5. 不可以在 Parcelable 中包含 Serializable 对象
 
 ## 缺陷
 1. com.baidu.provider.Provider.get 方法存在缺陷

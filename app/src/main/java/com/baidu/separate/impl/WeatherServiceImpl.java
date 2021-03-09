@@ -1,6 +1,11 @@
 package com.baidu.separate.impl;
 
+import com.baidu.common.util.Slog;
 import com.baidu.separate.protocol.WeatherService;
+import com.baidu.separate.protocol.bean.WeatherPayload;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO
@@ -11,9 +16,28 @@ import com.baidu.separate.protocol.WeatherService;
 
 public class WeatherServiceImpl implements WeatherService {
 
+    private final List<OnWeatherCallback> mCallbacks = new ArrayList<>();
+
     @Override
     public String getWeather() {
 
-        return "{}";
+        return "{\"weather\":\"sunny\", \"temp\":20}";
+    }
+
+    @Override
+    public WeatherPayload showBodyView(WeatherPayload payload) {
+        Slog.i("显示天气 " + payload);
+        payload.setCity("北京");
+        payload.setBean(null);
+
+        for (OnWeatherCallback callback : mCallbacks) {
+            callback.onWeather(payload);
+        }
+        return payload;
+    }
+
+    @Override
+    public void registerCallback(OnWeatherCallback callback) {
+        mCallbacks.add(callback);
     }
 }

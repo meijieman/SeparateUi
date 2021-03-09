@@ -7,6 +7,7 @@ import android.os.Parcelable;
 
 import com.baidu.common.util.Slog;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +43,8 @@ public class CallbackExchanger {
         bundle.setClassLoader(getClass().getClassLoader());
         String method = bundle.getString("method");
         int objHash = bundle.getInt("objHash");
-        Parcelable arg = bundle.getParcelable("arg");
-        Slog.i("objHash " + objHash + ", method " + method + ", arg " + arg);
+//        Parcelable arg = bundle.getParcelable("arg");
+        Slog.i("objHash " + objHash + ", method " + method + ", bundle " + bundle);
 
         Object obj = mMap.get(objHash);
         if (obj == null) {
@@ -52,16 +53,53 @@ public class CallbackExchanger {
         }
         for (Method declaredMethod : obj.getClass().getDeclaredMethods()) {
             if (method.equals(declaredMethod.getName())) {
+                Object[] args = getParamsData(bundle, declaredMethod.getParameterTypes());
                 // 切换到ui线程
                 mHandler.post(() -> {
                     try {
-                        declaredMethod.invoke(obj, arg);
+                        declaredMethod.invoke(obj, args);
                     } catch (Exception e) {
-                        Slog.e("回调转化发生异常 " + e);
+                        Slog.e("回调调用发生异常 " + e);
                     }
                 });
                 break;
             }
         }
+    }
+
+    private Object[] getParamsData(Bundle bundle, Class<?>[] types) {
+        Object[] args = new Object[types.length];
+        for (int i = 0; i < types.length; i++) {
+            Class<?> type = types[i];
+            if (Parcelable.class.isAssignableFrom(type)) {
+                args[i] = bundle.getParcelable(type.getName());
+            } else if (Serializable.class.isAssignableFrom(type)) {
+                args[i] = bundle.getSerializable(type.getName());
+            } else if (String.class.isAssignableFrom(type)) {
+                args[i] = bundle.getString(type.getName());
+            } else if (int.class.isAssignableFrom(type)) {
+                args[i] = bundle.getInt(type.getName());
+            } else if (int[].class.isAssignableFrom(type)) {
+                args[i] = bundle.getIntArray(type.getName());
+            } else if (short.class.isAssignableFrom(type)) {
+                args[i] = bundle.getShort(type.getName());
+            } else if (long.class.isAssignableFrom(type)) {
+                args[i] = bundle.getLong(type.getName());
+            } else if (float.class.isAssignableFrom(type)) {
+                args[i] = bundle.getFloat(type.getName());
+            } else if (double.class.isAssignableFrom(type)) {
+                args[i] = bundle.getDouble(type.getName());
+            } else if (byte.class.isAssignableFrom(type)) {
+                args[i] = bundle.getByte(type.getName());
+            } else if (char.class.isAssignableFrom(type)) {
+                args[i] = bundle.getChar(type.getName());
+            } else if (boolean.class.isAssignableFrom(type)) {
+                args[i] = bundle.getBoolean(type.getName());
+            } else {
+                Slog.e("other type " + type);
+            }
+        }
+
+        return args;
     }
 }

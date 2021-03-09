@@ -14,9 +14,10 @@ import com.baidu.common.util.Slog;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 负责创建链接
+ * 负责创建链接，注册回调监听
  */
 public class Connector {
     private final CallbackExchanger mExchanger;
@@ -28,7 +29,7 @@ public class Connector {
     private final CountDownLatch mCountDownLatch = new CountDownLatch(1);
 
     private ICall mICall;
-    private boolean mIsConnected;
+    private final AtomicBoolean mIsConnected = new AtomicBoolean(false);
     private final CallbackProxy mCallback = new CallbackProxy.Stub() {
         @Override
         public void onChange(Bundle bundle) throws RemoteException {
@@ -37,23 +38,38 @@ public class Connector {
         }
     };
 
-    private final ServiceConnection conn = new ServiceConnection() {
+    private final ServiceConnection mConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mICall = ICall.Stub.asInterface(service);
             Slog.i("连接成功, " + Thread.currentThread().getName());
-            mIsConnected = true;
-            mCountDownLatch.countDown();
+
             try {
+                mICall.asBinder().linkToDeath(mDeathRecipient, 0);
                 mICall.register(mCallback);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+            mIsConnected.set(true);
+            mCountDownLatch.countDown();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mIsConnected = false;
+            Slog.w("链接断开，触发重连");
+            mIsConnected.set(false);
+        }
+    };
+
+    private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            Slog.w("binder died");
+            if (mICall == null) {
+                return;
+            }
+            mICall.asBinder().unlinkToDeath(mDeathRecipient, 0);
+            mICall = null;
         }
     };
 
@@ -63,7 +79,8 @@ public class Connector {
     public void connect(Context ctx, boolean ipc) {
         Slog.i("连接 ");
 
-        if (mIsConnected) {
+        if (mIsConnected.get()) {
+            Slog.i("重复连接，返回 ");
             return;
         }
         // 链接对象
@@ -85,7 +102,7 @@ public class Connector {
         }
         Slog.d("explicitIntent " + explicitIntent.toURI());
         try {
-            boolean isSuccess = ctx.bindService(explicitIntent, conn, Context.BIND_AUTO_CREATE);
+            boolean isSuccess = ctx.bindService(explicitIntent, mConn, Context.BIND_AUTO_CREATE);
             Slog.v("bind " + isSuccess + ", " + Thread.currentThread().getName());
             if (isSuccess) {
                 try {
@@ -122,7 +139,6 @@ public class Connector {
             return call1;
         }
     }
-
 
     public static Intent explicitIntent(Context context, Intent implicitIntent) {
         List<ResolveInfo> resolveInfoList = context.getPackageManager().queryIntentServices(implicitIntent, 0);

@@ -82,6 +82,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btn_unreg_comm).setOnClickListener(this);
         findViewById(R.id.btn_serializable).setOnClickListener(this);
         findViewById(R.id.btn_reg_seri).setOnClickListener(this);
+        findViewById(R.id.btn_reg_remove).setOnClickListener(this);
 
         findViewById(R.id.btn_remote_view).setOnClickListener(this);
 
@@ -123,19 +124,19 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
 
+            // 参数为接口
+            Student student = new Student();
+            boolean result = bookService.borrowBook(student);
+            Slog.i("borrow result " + result);
+
+        } else if (id == R.id.btn_reg_remove) {
+            bookService.registerView(this);
         } else if (id == R.id.btn_count) {
             int count = bookService.getCount();
             Slog.w("count " + count);
             mText.setText("总数 " + count);
 
-            Student student = new Student();
-            boolean result = bookService.borrowBook(student);
-            Slog.i("borrow result " + result);
-
-//            bookService.registerView(this);
-
         } else if (id == R.id.btn_register) {
-            // FIXME: 2021/1/27 不支持回调中设置为 Serializable，为什么支持 ArrayList 呢？
             //  java.lang.RuntimeException: Parcelable encountered ClassNotFoundException reading a Serializable object (name = com.baidu.demo.client.-$$Lambda$ThirdPartActivity$FCOslk6SrLTXtREJt5DrDBTydb4)
             long start = System.currentTimeMillis();
             bookService.register(mListener);

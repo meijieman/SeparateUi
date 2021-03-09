@@ -102,6 +102,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="更新远程view"
+        android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="@+id/btn_unreg"
         app:layout_constraintTop_toBottomOf="@+id/btn_unreg" />
 
@@ -110,7 +111,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Serializable"
+        android:text="Serializable 对象"
+        android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="@+id/btn_remote_view"
         app:layout_constraintTop_toBottomOf="@+id/btn_remote_view" />
 
@@ -118,8 +120,17 @@
         android:id="@+id/btn_reg_seri"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:text="register"
+        android:layout_marginStart="36dp"
+        android:text="注册监听"
         app:layout_constraintBottom_toBottomOf="@+id/btn_serializable"
         app:layout_constraintStart_toEndOf="@+id/btn_serializable" />
+
+    <Button
+        android:id="@+id/btn_reg_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:text="注册监听"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_remove"
+        app:layout_constraintStart_toEndOf="@+id/btn_remove" />
 </androidx.constraintlayout.widget.ConstraintLayout>

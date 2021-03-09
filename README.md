@@ -39,7 +39,7 @@
 4. 远程方法调用参数可以为 Serializable 的对象，其中包含的成员变量如果是对象，需要实现 Serializable
 5. 不可以在 Parcelable 中包含 Serializable 对象
 
-## 缺陷
+## 问题
 1. com.baidu.provider.Provider.get 方法存在缺陷
 如果传入的是接口，它有多个实现，而实现的方式又不一样，如何确定调用哪个实现？
 -需要根据调用方法的对象来确定对应的实现，在 Provider#get 添加识别具体实例对象的参数。
@@ -48,9 +48,19 @@
 - 已完成此功能，借助 CallbackProxy 跨进程完成回调
 
 3. 普通方法参数能够定义为 interface 的么
+- 可以，参考 com.baidu.separate.protocol.BookService.borrowBook
 
-4. aidl 被断开的时候，需要触发重连机制。而且之前调用的注册监听的逻辑可能会失效，需要想办法去反注册掉
+4. binder dead 需要触发重连机制
+linkToDeath
 
+5. 当 服务断开 aidl链路崩溃，之前调用的注册监听的逻辑如何处理
+- 尽量保证 aidl 断开时能够重连
+
+6. 对于运行的时候，client 重启了， server 没有重启， server 存在注册的回调如何处理
+- client 每次注册的时候获取其 pid，将 pid 和 packagename做绑定，回调时加以区别。或相同包名再次注册时清理之前 pid 绑定的监听。
+
+7. 对于运行中，client 没有重启， server 重启了，server 丢失了注册的回调如何处理
+- server 每次启动后发送一个动态广播，client 接收此广播，得知 client 重启了
 
 ## 原理 demo
 com.baidu.provider.server.Test3

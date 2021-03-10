@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
 
 import com.baidu.common.util.Slog;
@@ -102,6 +103,7 @@ public class Connector {
         }
         Slog.d("explicitIntent " + explicitIntent.toURI());
         try {
+            explicitIntent.putExtra("pid", Process.myPid());
             boolean isSuccess = ctx.bindService(explicitIntent, mConn, Context.BIND_AUTO_CREATE);
             Slog.v("bind " + isSuccess + ", " + Thread.currentThread().getName());
             if (isSuccess) {

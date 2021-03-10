@@ -29,9 +29,12 @@ public class App extends Application {
         super.onCreate();
         sApp = this;
 
-        Slog.i("onCreate 初始化实例, pid " + Process.myPid());
-        DataCenter.getInstance().add(new BookServiceImpl());
-        DataCenter.getInstance().add(new WeatherServiceImpl());
-        DataCenter.getInstance().add(new RemoteViewServiceImpl());
+        String currentProcess = ProcessUtil.getCurrentProcessName(this);
+        Slog.i("onCreate 初始化实例, " + currentProcess);
+        if (getPackageName().equals(currentProcess)) {
+            DataCenter.getInstance().add(new BookServiceImpl());
+            DataCenter.getInstance().add(new WeatherServiceImpl());
+            DataCenter.getInstance().add(new RemoteViewServiceImpl());
+        }
     }
 }

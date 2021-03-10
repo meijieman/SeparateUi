@@ -18,6 +18,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ClientActivity"
+            android:label="ClientActivity"
+            android:process=":remote"
+            />
 
     </application>
 

@@ -1,50 +1,45 @@
 package com.baidu.separate;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Process;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.baidu.common.util.Slog;
-import com.baidu.provider.Provider;
-import com.baidu.separate.protocol.BookService;
-import com.baidu.separate.protocol.bean.Book;
-import com.baidu.separate.protocol.bean.Result;
-import com.baidu.separate.protocol.callback.OnBookListener;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+/**
+ * TODO
+ *
+ * @author meijie05
+ * @since 2021/3/10 9:40 AM
+ */
 
-    private final OnBookListener mListener = new OnBookListener() {
-        @Override
-        public void onChanged(Result result) {
-            Slog.i("result " + result);
-            mText.setText("收到更新 " + result);
-        }
-    };
-    private TextView mText;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Slog.i("init main");
+
         setContentView(R.layout.activity_main);
-        Slog.d("onCreate");
 
-        findViewById(R.id.btn_add).setOnClickListener(this);
-        findViewById(R.id.btn_remove).setOnClickListener(this);
-        findViewById(R.id.btn_count).setOnClickListener(this);
-        findViewById(R.id.btn_register).setOnClickListener(this);
-        findViewById(R.id.btn_unreg).setOnClickListener(this);
+        TextView info = findViewById(R.id.tv_info);
+        info.setText(String.format("当前进程：%s\r\n client进程：%s",
+                getPackageName(), getActivityProcessName(this, ClientActivity.class)));
 
-        mText = findViewById(R.id.tv_text);
-        ImageView img = findViewById(R.id.iv_img);
+        findViewById(R.id.btn_open).setOnClickListener(v -> {
+            startActivity(new Intent(this, ClientActivity.class));
+        });
+
         FrameLayout fl = findViewById(R.id.fl_main);
-
-        // 初始化
-        Provider.getInstance().init(MainActivity.this, false);
 
         mOnTransform = view -> {
             Slog.i("view 收到 " + view + ", pid " + Process.myPid());
@@ -55,38 +50,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
     }
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        BookService bookService = Provider.getInstance().get(BookService.class);
-        if (id == R.id.btn_add) {
-            long start = System.currentTimeMillis();
-
-            Book book = new Book();
-            book.setNo(0);
-            book.setName("第一行代码");
-            book.setAvailable(true);
-
-            boolean result = bookService.addBook(book);
-            Slog.w("结果: " + result + ", used: " + (System.currentTimeMillis() - start));
-            mText.setText("添加 " + result);
-        } else if (id == R.id.btn_remove) {
-            bookService.removeBook(0);
-        } else if (id == R.id.btn_count) {
-            long start = System.currentTimeMillis();
-            int count = bookService.getCount();
-            Slog.w("count " + count);
-            mText.setText("总数 " + count);
-            Slog.w("time used: " + (System.currentTimeMillis() - start));
-        } else if (id == R.id.btn_register) {
-            long start = System.currentTimeMillis();
-            bookService.register(mListener);
-            Slog.w("time used: " + (System.currentTimeMillis() - start));
-        } else if (id == R.id.btn_unreg) {
-            long start = System.currentTimeMillis();
-            bookService.unregister(mListener);
-            Slog.w("time used: " + (System.currentTimeMillis() - start));
+    /**
+     * 获取指定 activity 在 AndroidManifest中注册的 processName
+     *
+     * @param clazz Activity 的 class
+     * @return
+     */
+    private String getActivityProcessName(Context ctx, Class<?> clazz) {
+        try {
+            PackageInfo info = ctx.getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
+            if (info != null) {
+                for (ActivityInfo activity : info.activities) {
+                    if (clazz.getName().equals(activity.name)) {
+                        return activity.processName;
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
+
+        return null;
     }
 
 

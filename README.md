@@ -5,6 +5,27 @@
 
 对于注册回调，因为跨进程需要使用 aidl，定义一个通用的 CallbackProxy，注册回调监听，然后通过动态代理实现各种监听的注册和回调
 
+## 框架调用流程
+1. 在 server app集成 
+    `implementation(name: 'provider_server_debug_20210309_1905', ext: 'aar')`
+
+2. 在 server Application#onCreate 中初始化实现类
+``` java
+    DataCenter.getInstance().add(new BookServiceImpl());
+```
+
+3. 在 client app 集成
+    `api(name: 'provider_debug_20210309_1905', ext: 'aar')`
+
+4. 在 client app 初始化
+``` java
+    Provider.getInstance().init(getApplicationContext(), true);
+```
+5. 在 client app 需要跨进程调用的时候拿到对应的接口
+``` java
+    BookService bookService = Provider.getInstance().get(BookService.class);
+```
+
 ## app
 基础服务提供模块，可以为远程提供服务的主要组件
 

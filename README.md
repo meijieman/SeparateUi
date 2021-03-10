@@ -7,7 +7,10 @@
 
 ## 框架调用流程
 1. 在 server app集成 
-    `implementation(name: 'provider_server_debug_20210309_1905', ext: 'aar')`
+```
+    implementation(name: 'provider_server_debug_20210309_1905', ext: 'aar')
+    implementation(name: 'common_debug_20210310_1419', ext: 'aar')
+```
 
 2. 在 server Application#onCreate 中初始化实现类
 ``` java
@@ -16,7 +19,8 @@
 
 3. 在 client app 集成
     `api(name: 'provider_debug_20210309_1905', ext: 'aar')`
-
+如果不是同进程，还需要依赖
+    `implementation(name: 'common_debug_20210310_1419', ext: 'aar')`
 4. 在 client app 初始化
 ``` java
     Provider.getInstance().init(getApplicationContext(), true);
@@ -82,6 +86,10 @@ linkToDeath
 
 7. 对于运行中，client 没有重启， server 重启了，server 丢失了注册的回调如何处理
 - server 每次启动后发送一个动态广播，client 接收此广播，得知 client 重启了
+
+8. 集成 aar 的时候报错 `Duplicate class com.baidu.provider.Call found in modules jetified-provider_debug_20210310_1231-runtime`
+- 原因为 provider.aar 和 provider_server.aar 有重复的文件，然后一个app中又集成了这两个 aar。解决办法为手动删除 provider.aar 中的重复的文件，注意此时的 provider.aar
+是不能用户跨进程的 client app 中的
 
 ## 原理 demo
 com.baidu.provider.server.Test3

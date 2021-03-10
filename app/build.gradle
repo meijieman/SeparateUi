@@ -28,6 +28,12 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -40,6 +46,10 @@ dependencies {
 
     implementation project(path: ':provider_server')
     implementation project(path: ':provider')
+//    api(name: 'provider_debug_20210310_1231', ext: 'aar')
+//    api(name: 'provider_server_debug_20210310_1230', ext: 'aar')
+
+
     implementation project(path: ':common')
 
 }

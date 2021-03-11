@@ -5,7 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.util.Slog;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 public class CallbackExchanger {
 
+    private static final String TAG = "CallbackExchanger";
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Map<Integer, Object> mMap = new HashMap<>(); // 对象的 hashcode，value 该对象
 
@@ -28,14 +30,14 @@ public class CallbackExchanger {
         int key = obj.hashCode();
         if (mMap.get(key) == null) {
             mMap.put(key, obj);
-            Slog.i("add " + key + ", " + obj);
+            XLog.i(TAG, "add " + key + ", " + obj);
         }
     }
 
     public void remove(Object obj) {
         int key = obj.hashCode();
         mMap.remove(key);
-        Slog.i("remove " + key);
+        XLog.i(TAG, "remove " + key);
     }
 
     public void onChanged(Bundle bundle) {
@@ -44,11 +46,11 @@ public class CallbackExchanger {
         String method = bundle.getString("method");
         int objHash = bundle.getInt("objHash");
 //        Parcelable arg = bundle.getParcelable("arg");
-        Slog.i("objHash " + objHash + ", method " + method + ", bundle " + bundle);
+        XLog.i(TAG, "objHash " + objHash + ", method " + method + ", bundle " + bundle);
 
         Object obj = mMap.get(objHash);
         if (obj == null) {
-            Slog.i("not found method instance. " + method);
+            XLog.i(TAG, "not found method instance. " + method);
             return;
         }
         for (Method declaredMethod : obj.getClass().getDeclaredMethods()) {

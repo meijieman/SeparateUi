@@ -3,7 +3,7 @@ package com.baidu.provider;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.baidu.common.util.Slog;
+import com.baidu.provider.common.util.Slog;
 
 import java.util.Arrays;
 

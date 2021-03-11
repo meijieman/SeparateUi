@@ -1,16 +1,15 @@
 package com.baidu.separate;
 
 import android.os.Bundle;
-import android.os.Process;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Provider;
+import com.baidu.provider.common.util.Slog;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.bean.Result;
@@ -18,10 +17,12 @@ import com.baidu.separate.protocol.callback.OnBookListener;
 
 public class ClientActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String TAG = "ClientActivity";
+
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            Slog.i("result " + result);
+            XLog.i(TAG, "result " + result);
             mText.setText("收到更新 " + result);
         }
     };
@@ -31,7 +32,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client);
-        Slog.d("init client");
+        XLog.d(TAG, "init client");
 
         findViewById(R.id.btn_add).setOnClickListener(this);
         findViewById(R.id.btn_remove).setOnClickListener(this);
@@ -43,7 +44,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         ImageView img = findViewById(R.id.iv_img);
 
         String currentProcessName = ProcessUtil.getCurrentProcessName(this);
-        Slog.i("packageName " + getPackageName() + ", processName " + currentProcessName);
+        XLog.i(TAG, "packageName " + getPackageName() + ", processName " + currentProcessName);
         boolean isIpc = !getPackageName().equals(currentProcessName);
         // 初始化
         Provider.getInstance().init(ClientActivity.this, isIpc);

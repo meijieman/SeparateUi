@@ -7,10 +7,10 @@ import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Process;
 import android.os.RemoteException;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.util.Slog;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 负责创建链接，注册回调监听
  */
 public class Connector {
+    private static final String TAG = "Connector";
     private final CallbackExchanger mExchanger;
 
     public Connector(CallbackExchanger exchanger) {
@@ -34,7 +35,7 @@ public class Connector {
     private final CallbackProxy mCallback = new CallbackProxy.Stub() {
         @Override
         public void onChange(Bundle bundle) throws RemoteException {
-            Slog.i("onChange " + bundle);
+            XLog.i(TAG, "onChange " + bundle);
             mExchanger.onChanged(bundle);
         }
     };
@@ -43,7 +44,7 @@ public class Connector {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mICall = ICall.Stub.asInterface(service);
-            Slog.i("连接成功, " + Thread.currentThread().getName());
+            XLog.i(TAG, "连接成功, " + Thread.currentThread().getName());
 
             try {
                 mICall.asBinder().linkToDeath(mDeathRecipient, 0);
@@ -78,10 +79,10 @@ public class Connector {
      * 创建链接
      */
     public void connect(Context ctx, boolean ipc) {
-        Slog.i("连接 ");
+        XLog.i(TAG, "连接 ");
 
         if (mIsConnected.get()) {
-            Slog.i("重复连接，返回 ");
+            XLog.i(TAG, "重复连接，返回 ");
             return;
         }
         // 链接对象
@@ -95,17 +96,17 @@ public class Connector {
             }
             intent = new Intent("conn_service");
         }
-        Slog.d("intent " + intent.toURI());
+        XLog.d(TAG, "intent " + intent.toURI());
         Intent explicitIntent = explicitIntent(ctx, intent);
         if (explicitIntent == null) {
             Slog.e("绑定服务失败，服务不存在");
             return;
         }
-        Slog.d("explicitIntent " + explicitIntent.toURI());
+        XLog.d(TAG, "explicitIntent " + explicitIntent.toURI());
         try {
 //            explicitIntent.putExtra("pid", Process.myPid());
             boolean isSuccess = ctx.bindService(explicitIntent, mConn, Context.BIND_AUTO_CREATE);
-            Slog.v("bind " + isSuccess + ", " + Thread.currentThread().getName());
+            XLog.v(TAG, "bind " + isSuccess + ", " + Thread.currentThread().getName());
             if (isSuccess) {
                 try {
                     mCountDownLatch.await(500, TimeUnit.MILLISECONDS);
@@ -123,7 +124,7 @@ public class Connector {
     }
 
     public Call sendCall(Call call) {
-        Slog.v("发送请求 " + call);
+        XLog.v(TAG, "发送请求 " + call);
         if (mICall == null) {
             Call call1 = new Call();
             call1.setResult(new RuntimeException("绑定服务失败"));
@@ -132,7 +133,7 @@ public class Connector {
 
         try {
             Call callResult = mICall.getCallResult(call);
-            Slog.v("收到结果 " + callResult);
+            XLog.v(TAG, "收到结果 " + callResult);
             return callResult;
         } catch (Exception e) {
             Slog.e("产生异常 " + e);

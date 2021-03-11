@@ -15,9 +15,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baidu.common.util.Slog;
-import com.baidu.common.util.ToastUtil;
+import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Provider;
+import com.baidu.provider.common.util.Slog;
+import com.baidu.provider.common.util.ToastUtil;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.OnViewShow;
 import com.baidu.separate.protocol.RemoteViewService;
@@ -33,19 +34,20 @@ import java.util.ArrayList;
 
 public class ThirdPartActivity extends AppCompatActivity implements View.OnClickListener, OnViewShow {
 
+    private static final String TAG = "ThirdPartActivity";
     public static final String ACTION_CLICK = "action_click";
 
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            Slog.i("回调 " + result);
+            XLog.i(TAG, "回调 " + result);
             mText.setText("收到更新 " + result);
         }
     };
     private final OnCommonCallback mCallback = new OnCommonCallback.Stub() {
         @Override
         public void onChanged(Bundle data) throws RemoteException {
-            Slog.i("callback " + data);
+            XLog.i(TAG, "callback " + data);
             mText.setText("callback " + data);
         }
     };
@@ -54,7 +56,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         @Override
         public void onReceive(Context context, Intent intent) {
             // 界面显示在其他进程，单其逻辑还运行在本进程
-            Slog.i("点击按钮===");
+            XLog.i(TAG, "点击按钮===");
             ToastUtil.getInstance().showShort("点击按钮");
             mRemoteView.setTextViewText(R.id.tv_text, "" + System.currentTimeMillis() % 100);
             Bundle b = new Bundle();
@@ -90,10 +92,10 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         ImageView img = findViewById(R.id.iv_img);
 
         ToastUtil.getInstance().init(this);
-        Slog.i("onCreate");
+        XLog.i(TAG, "onCreate");
         // 初始化
         Provider.getInstance().init(getApplicationContext(), true);
-        Slog.i("init end");
+        XLog.i(TAG, "init end");
 
         IntentFilter filter = new IntentFilter(ACTION_CLICK);
         registerReceiver(mReceiver, filter);
@@ -127,7 +129,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             // 参数为接口
             Student student = new Student();
             boolean result = bookService.borrowBook(student);
-            Slog.i("borrow result " + result);
+            XLog.i(TAG, "borrow result " + result);
 
         } else if (id == R.id.btn_reg_remove) {
             bookService.registerView(this);
@@ -157,7 +159,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             Intent intent = new Intent(ACTION_CLICK);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
             mRemoteView.setOnClickPendingIntent(R.id.btn_add, pendingIntent);
-            Slog.i("发送数据 remoteView " + mRemoteView + ", pid " + Process.myPid());
+            XLog.i(TAG, "发送数据 remoteView " + mRemoteView + ", pid " + Process.myPid());
 
             Bundle b = new Bundle();
             b.putParcelable("remote_view", mRemoteView);
@@ -169,7 +171,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             long start = System.currentTimeMillis();
             service.registerCallback(payload -> {
                 // 回调
-                Slog.i("天气回调 " + payload);
+                XLog.i(TAG, "天气回调 " + payload);
             });
             Slog.w("time used: " + (System.currentTimeMillis() - start));
         }
@@ -190,7 +192,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
 
         long start = System.currentTimeMillis();
         WeatherPayload weatherPayload = service.showBodyView(payload);
-        Slog.i("weatherPayload " + weatherPayload);
+        XLog.i(TAG, "weatherPayload " + weatherPayload);
         Slog.w("time used: " + (System.currentTimeMillis() - start));
     }
 

@@ -1,4 +1,4 @@
-package com.baidu.common.util;
+package com.baidu.provider.common.util;
 
 import android.os.Process;
 import android.util.Log;

@@ -5,7 +5,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.Process;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 
 /**
  * TODO
@@ -16,18 +16,20 @@ import com.baidu.common.util.Slog;
 
 public class ConnService2 extends android.app.Service {
 
+    private static final String TAG = "ConnService2";
+
     @Override
     public void onCreate() {
         super.onCreate();
-        Slog.i("onCreate " + Process.myPid());
+        XLog.i(TAG, "onCreate " + Process.myPid());
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         String callingApp = getPackageManager().getNameForUid(Binder.getCallingUid());
-        Slog.i("packageName " + intent.getComponent() + ", pid " + Binder.getCallingPid() + ", " + callingApp);
+        XLog.i(TAG, "packageName " + intent.getComponent() + ", pid " + Binder.getCallingPid() + ", " + callingApp);
         ICallImpl iCall = new ICallImpl();
-        Slog.i("iCall pid " + Process.myPid());
+        XLog.i(TAG, "iCall pid " + Process.myPid());
         return iCall;
     }
 }

@@ -5,11 +5,12 @@ import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
-import com.baidu.common.DataCenter;
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
 import com.baidu.provider.ICall;
+import com.baidu.provider.common.DataCenter;
+import com.baidu.provider.common.util.Slog;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -27,8 +28,9 @@ import java.util.Map;
 
 public class ICallImpl extends ICall.Stub {
 
+    private static final String TAG = "ICallImpl";
     public ICallImpl() {
-        Slog.d("pid " + Process.myPid());
+        XLog.d(TAG, "pid " + Process.myPid());
     }
 
     private final Map<Integer, Object> mMapping = new HashMap<>(); // key 远程对象嗯 hashCode，value 本地对象
@@ -42,7 +44,7 @@ public class ICallImpl extends ICall.Stub {
         Object[] params = call.getParams();
         Class<?>[] paramsTypes = call.getParamTypes();
 
-        Slog.d("反射 className " + className + ", " + methodName + ", " + Arrays.toString(params));
+        XLog.d(TAG, "反射 className " + className + ", " + methodName + ", " + Arrays.toString(params));
         try {
             // FIXME: 2021/1/21 定义的接口如 BookService，PersonService 及其参数对象的  className 需要创建的包名路径一致
             // 以后可以通过编译时注解来解决，只需要接口中定义的方法对应上就可以
@@ -52,7 +54,7 @@ public class ICallImpl extends ICall.Stub {
 //                mImpls.add(Class.forName("com.baidu.protocol.BookServiceImpl").newInstance());
 //                mImpls.add(Class.forName("com.baidu.protocol.RemoteViewServiceImpl").newInstance());
             }
-            Slog.d("mImpls size " + mImpls.size());
+            XLog.d(TAG, "mImpls size " + mImpls.size());
 
             Class<?> classType = Class.forName(className);
             // 获取 classType 的实现类
@@ -69,21 +71,21 @@ public class ICallImpl extends ICall.Stub {
             }
             // 获取所要调用的方法
             Method method = classType.getMethod(methodName, paramsTypes);
-            Slog.v("method " + method);
+            XLog.v(TAG, "method " + method);
 
 //            if (params != null && params[0] instanceof IBinder) {
 //                String canonicalName = paramsTypes[0].getCanonicalName();
-//                Slog.i("注册调用的方法 " + canonicalName);
+//                XLog.i(TAG, "注册调用的方法 " + canonicalName);
 //                IBinder binder = (IBinder) params[0];
 //                IInterface iInterface = binder.queryLocalInterface(canonicalName);
-//                Slog.i("注册调用的方法 iInterface " + iInterface);
+//                XLog.i(TAG, "注册调用的方法 iInterface " + iInterface);
 //
 //            }
             if (method.getName().startsWith("register")) {
                 // register 的参数必须为对应 Object 的 hashcode
                 int objHash = (int) params[0];
                 if (mMapping.get(objHash) != null) {
-                    Slog.d("不能重复注册相同的对象");
+                    XLog.d(TAG, "不能重复注册相同的对象");
                     call.setResult(new RuntimeException("不能重复注册相同的对象"));
                     return call;
                 }
@@ -118,7 +120,7 @@ public class ICallImpl extends ICall.Stub {
                     mMapping.remove(objHash);
                 } else {
                     call.setResult(new RuntimeException("未找到对应的 objHash， unregister 失败 " + params[0]));
-                    Slog.d("未找到对应的 objHash， unregister 失败 " + params[0]);
+                    XLog.d(TAG, "未找到对应的 objHash， unregister 失败 " + params[0]);
                     return call;
                 }
             }
@@ -138,7 +140,7 @@ public class ICallImpl extends ICall.Stub {
             call.setResult(e);
         }
 
-        Slog.v("发送结果 " + call);
+        XLog.v(TAG, "发送结果 " + call);
         return call;
     }
 
@@ -155,7 +157,7 @@ public class ICallImpl extends ICall.Stub {
     }
 
     void notifyCallback(Bundle bundle) {
-        Slog.v("更新 " + bundle);
+        XLog.v(TAG, "更新 " + bundle);
         try {
             int count = mCallbackList.beginBroadcast();
             if (count == 0) {
@@ -164,7 +166,7 @@ public class ICallImpl extends ICall.Stub {
             for (int i = 0; i < count; i++) {
                 CallbackProxy item = mCallbackList.getBroadcastItem(i);
                 try {
-                    Slog.d("发送更新 " + bundle);
+                    XLog.d(TAG, "发送更新 " + bundle);
                     // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
                     item.onChange(bundle);
                 } catch (RemoteException e) {

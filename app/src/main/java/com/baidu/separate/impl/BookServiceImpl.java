@@ -2,7 +2,7 @@ package com.baidu.separate.impl;
 
 import android.os.RemoteCallbackList;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.OnViewShow;
 import com.baidu.separate.protocol.Staff;
@@ -26,6 +26,7 @@ import java.util.List;
 
 public class BookServiceImpl implements BookService {
 
+    private static final String TAG = "BookServiceImpl";
     private final List<Book> mBooks = new ArrayList<>();
 
     // 需使用 RemoteCallbackList
@@ -39,13 +40,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public boolean addBook(Book book) {
-        Slog.i("book " + book);
+        XLog.i(TAG, "book " + book);
         return mBooks.add(book);
     }
 
     @Override
     public void removeBook(int no) {
-        Slog.i("no " + no);
+        XLog.i(TAG, "no " + no);
         for (Book book : mBooks) {
             if (book.getNo() == no) {
                 mBooks.remove(book);
@@ -56,7 +57,7 @@ public class BookServiceImpl implements BookService {
                 if (mShow != null) {
                     mShow.onShow("移除成功 book " + book);
                 }
-                Slog.i("result " + result + ", size " + mListeners.size());
+                XLog.i(TAG, "result " + result + ", size " + mListeners.size());
                 for (OnBookListener listener : mListeners) {
                     listener.onChanged(result);
                 }
@@ -130,13 +131,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public boolean borrowBook(Staff staff) {
-        Slog.i("借书 " + staff.limit() + ", " + staff.days());
+        XLog.i(TAG, "借书 " + staff.limit() + ", " + staff.days());
         return true;
     }
 
     @Override
     public void register(OnBookListener listener) {
-        Slog.i("listener " + listener);
+        XLog.i(TAG, "listener " + listener);
         if (listener == null) {
             return;
         }
@@ -145,7 +146,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void unregister(OnBookListener listener) {
-        Slog.i("listener " + listener);
+        XLog.i(TAG, "listener " + listener);
         // 跨进程注销普通 listener 存在问题
         mListeners.remove(listener);
     }
@@ -164,13 +165,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void regCallback(OnCommonCallback callback) {
-        Slog.i("callback " + callback);
+        XLog.i(TAG, "callback " + callback);
         mCallbacks.register(callback);
     }
 
     @Override
     public void unregCallback(OnCommonCallback callback) {
-        Slog.i("callback " + callback);
+        XLog.i(TAG, "callback " + callback);
         mCallbacks.unregister(callback);
     }
 }

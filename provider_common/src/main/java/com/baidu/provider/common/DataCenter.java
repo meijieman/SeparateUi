@@ -1,8 +1,8 @@
-package com.baidu.common;
+package com.baidu.provider.common;
 
 import android.os.Process;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,8 @@ import java.util.List;
  */
 
 public class DataCenter {
+
+    private static final String TAG = "DataCenter";
 
     private static class Holder {
         private static final DataCenter sInstance = new DataCenter();
@@ -31,7 +33,7 @@ public class DataCenter {
     private final List<Object> mImpls = new ArrayList<>();
 
     public List<Object> getImpls() {
-        Slog.d("getImpls, pid " + Process.myPid());
+        XLog.d(TAG, "getImpls, pid " + Process.myPid());
         return mImpls;
     }
 

@@ -35,4 +35,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(path: ':provider_common')
+    api project(':dueros-xLog')
+
 }

@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 
 /**
  * TODO
@@ -24,10 +24,12 @@ import com.baidu.common.util.Slog;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Slog.i("init main");
+        XLog.i(TAG, "init main");
 
         setContentView(R.layout.activity_main);
 
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout fl = findViewById(R.id.fl_main);
 
         mOnTransform = view -> {
-            Slog.i("view 收到 " + view + ", pid " + Process.myPid());
+            XLog.i(TAG, "view 收到 " + view + ", pid " + Process.myPid());
             fl.post(() -> {
                 fl.removeAllViews();
                 fl.addView(view);

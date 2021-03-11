@@ -3,7 +3,8 @@ package com.baidu.provider.server;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.util.Slog;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 
 class CallbackHandler implements InvocationHandler {
 
+    private static final String TAG = "CallbackHandler";
     private final ICallImpl mICall;
     private final int mObjHash;
 
@@ -33,7 +35,7 @@ class CallbackHandler implements InvocationHandler {
             // 无法拿到动态代理对象的 toString，hashCode 方法，可以将 InvocationHandler 和 代理对象绑定，然后返回 InvocationHandler 的对应方法
             return method.invoke(this, args);
         }
-        Slog.i("回调代理, method " + method + ", " + Arrays.toString(args));
+        XLog.i(TAG, "回调代理, method " + method + ", " + Arrays.toString(args));
         Class<?>[] types = method.getParameterTypes();
         if (args.length != types.length) {
             throw new RuntimeException("参数列表错误");
@@ -47,7 +49,7 @@ class CallbackHandler implements InvocationHandler {
         }
 
         bundle.setClassLoader(getClass().getClassLoader());
-        Slog.i("回调 " + bundle);
+        XLog.i(TAG, "回调 " + bundle);
         mICall.notifyCallback(bundle);
 
         return null;

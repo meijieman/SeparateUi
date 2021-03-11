@@ -1,6 +1,6 @@
 package com.baidu.separate.impl;
 
-import com.baidu.common.util.Slog;
+import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.separate.protocol.WeatherService;
 import com.baidu.separate.protocol.bean.WeatherPayload;
 
@@ -16,6 +16,7 @@ import java.util.List;
 
 public class WeatherServiceImpl implements WeatherService {
 
+    private static final String TAG = "WeatherServiceImpl";
     private final List<OnWeatherCallback> mCallbacks = new ArrayList<>();
 
     @Override
@@ -26,7 +27,7 @@ public class WeatherServiceImpl implements WeatherService {
 
     @Override
     public WeatherPayload showBodyView(WeatherPayload payload) {
-        Slog.i("显示天气 " + payload);
+        XLog.i(TAG, "显示天气 " + payload);
         payload.setCity("北京");
         payload.setBean(null);
 

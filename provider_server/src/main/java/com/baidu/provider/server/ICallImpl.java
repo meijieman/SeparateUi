@@ -1,7 +1,6 @@
 package com.baidu.provider.server;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -12,8 +11,6 @@ import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
 import com.baidu.provider.ICall;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -91,18 +88,19 @@ public class ICallImpl extends ICall.Stub {
                     return call;
                 }
 
-                // 创建实现类注册到
+                // 创建回调的实现类
                 Class<?> paramsType = paramsTypes[0];
+                CallbackHandler callback = new CallbackHandler(this, objHash);
+                ClassLoader classLoader = invoker.getClass().getClassLoader();
+                Object callbackProxy = Proxy.newProxyInstance(classLoader, new Class[]{paramsType}, callback);
+
+                ActiveCallHandler activeCall = new ActiveCallHandler(callbackProxy);
                 Object serviceProxy;
-                MyHandler2 h2 = new MyHandler2(objHash);
-                Object callbackProxy = Proxy.newProxyInstance(invoker.getClass().getClassLoader(),
-                        new Class[]{paramsType}, h2);
-                MyHandler h = new MyHandler(callbackProxy);
                 if (paramsType.isInterface()) {
                     // 如果是接口，使用动态代理创建其实现类
-                    serviceProxy = Proxy.newProxyInstance(invoker.getClass().getClassLoader(), new Class[]{paramsType}, h);
+                    serviceProxy = Proxy.newProxyInstance(classLoader, new Class[]{paramsType}, activeCall);
                 } else {
-                    // FIXME: 2021/2/22
+                    // FIXME: 2021/2/22 暂不支持
                     serviceProxy = paramsType.newInstance();
                 }
                 mMapping.put(objHash, serviceProxy);
@@ -156,7 +154,7 @@ public class ICallImpl extends ICall.Stub {
         mCallbackList.unregister(proxy);
     }
 
-    private void notifyCallback(Bundle bundle) {
+    void notifyCallback(Bundle bundle) {
         Slog.v("更新 " + bundle);
         try {
             int count = mCallbackList.beginBroadcast();
@@ -178,143 +176,6 @@ public class ICallImpl extends ICall.Stub {
             Slog.e("报错啦 " + e);
         } finally {
             mCallbackList.finishBroadcast();
-        }
-
-    }
-
-    // 回调方法的代理对象
-   /* private class MyHandler implements InvocationHandler {
-        private Integer objHash;
-
-        public MyHandler(Integer objHash) {
-            this.objHash = objHash;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            Slog.i("回调被调用 " + proxy + ", method " + method + ", " + Arrays.toString(args));
-
-            if (!method.getName().startsWith("on")) {
-//                Object o = mMapping.get(objHash);
-//                Object invoke = method.invoke(o, args);
-//                Slog.i("回调返回结果 " + invoke);
-//                return invoke;
-                return null;
-            }
-
-            Parcelable arg = null;
-            if (args != null && args.length > 0) {
-                arg = (Parcelable) args[0];
-            }
-            Bundle bundle = gen(objHash, arg);
-            Slog.i("回调 " + bundle);
-            notifyCallback(bundle);
-            return null;
-        }
-    }*/
-
-    // 注册回调对象的代理类
-    private static class MyHandler implements InvocationHandler {
-        private final Object proxy;
-
-        public MyHandler(Object proxy) {
-            this.proxy = proxy;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            // 为什么会调用到  public java.lang.String java.lang.Object.toString()
-            // 因为 com.baidu.separate.impl.BookServiceImpl.register 方法打印了 listener
-
-            Slog.i("回调被调用, method " + method + ", " + Arrays.toString(args));
-            try {
-                return method.invoke(this.proxy, args);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Slog.e("回调异常 " + e);
-            }
-            return null;
-        }
-    }
-
-    // 回调对象的代理类
-    class MyHandler2 implements InvocationHandler {
-        private final Integer objHash;
-
-        public MyHandler2(Integer objHash) {
-            this.objHash = objHash;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (!method.getName().startsWith("on")) {  // TODO: 2021/2/21 可以通过是否是接口中定义的方法来判断
-                // 无法拿到动态代理对象的 toString，hashCode 方法，可以将 InvocationHandler 和 代理对象绑定，然后返回 InvocationHandler 的对应方法
-                return method.invoke(this, args);
-            }
-            Slog.i("回调代理, method " + method + ", " + Arrays.toString(args));
-            Class<?>[] types = method.getParameterTypes();
-            if (args.length != types.length) {
-                throw new RuntimeException("参数列表错误");
-            }
-//            Parcelable arg = null;
-//            if (args != null && args.length > 0) {
-//                arg = (Parcelable) args[0];
-//            }
-//            Bundle bundle = gen(objHash, method.getName(), arg);
-
-            Bundle bundle = new Bundle();
-            bundle.putString("method", method.getName());
-            bundle.putInt("objHash", objHash);
-            for (int i = 0; i < types.length; i++) {
-                putParamsData(bundle, types[i], args[i]);
-            }
-
-            bundle.setClassLoader(getClass().getClassLoader());
-            Slog.i("回调 " + bundle);
-            notifyCallback(bundle);
-
-            return null;
-        }
-    }
-
-    private Bundle gen(int objHash, String method, Parcelable arg) {
-        Bundle bundle = new Bundle();
-        bundle.putString("method", method);
-        bundle.putInt("objHash", objHash);
-        if (arg != null) {
-            bundle.putParcelable("arg", arg);
-        }
-
-        return bundle;
-    }
-
-    private void putParamsData(Bundle bundle, Class<?> type, Object arg) {
-        if (Parcelable.class.isAssignableFrom(type)) {
-            bundle.putParcelable(type.getName(), (Parcelable) arg);
-        } else if (Serializable.class.isAssignableFrom(type)) {
-            bundle.putSerializable(type.getName(), (Serializable) arg);
-        } else if (String.class.isAssignableFrom(type)) {
-            bundle.putString(type.getName(), (String) arg);
-        } else if (int.class.isAssignableFrom(type)) {
-            bundle.putInt(type.getName(), (int) arg);
-        } else if (int[].class.isAssignableFrom(type)) {
-            bundle.putIntArray(type.getName(), (int[]) arg);
-        } else if (short.class.isAssignableFrom(type)) {
-            bundle.putShort(type.getName(), (short) arg);
-        } else if (long.class.isAssignableFrom(type)) {
-            bundle.putLong(type.getName(), (long) arg);
-        } else if (float.class.isAssignableFrom(type)) {
-            bundle.putFloat(type.getName(), (float) arg);
-        } else if (double.class.isAssignableFrom(type)) {
-            bundle.putDouble(type.getName(), (double) arg);
-        } else if (byte.class.isAssignableFrom(type)) {
-            bundle.putByte(type.getName(), (byte) arg);
-        } else if (char.class.isAssignableFrom(type)) {
-            bundle.putChar(type.getName(), (char) arg);
-        } else if (boolean.class.isAssignableFrom(type)) {
-            bundle.putBoolean(type.getName(), (boolean) arg);
-        } else {
-            Slog.e("other type " + type);
         }
     }
 

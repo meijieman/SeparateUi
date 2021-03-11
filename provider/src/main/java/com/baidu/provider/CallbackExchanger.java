@@ -54,6 +54,8 @@ public class CallbackExchanger {
         for (Method declaredMethod : obj.getClass().getDeclaredMethods()) {
             if (method.equals(declaredMethod.getName())) {
                 Object[] args = getParamsData(bundle, declaredMethod.getParameterTypes());
+
+//                declaredMethod.getReturnType() void.class
                 // 切换到ui线程
                 mHandler.post(() -> {
                     try {

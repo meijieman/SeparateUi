@@ -58,7 +58,7 @@
 对于 register 开头的注册方法，如果参数类型为对象形式，则将其包装为 Call，传过去后再拆出来，封装成一个对象保存到 Map 中，可解决 register 失败的问题
 
 ## 注册回调的注意事项
-1. 注册的回调方法需要以 register 开头，反注册需要以 unregister 开头，注册的对象的方法需要使用 on 开头
+1. 注册的回调方法需要以 register 开头，反注册需要以 unregister 开头，注册的对象的方法需要使用 on 开头，register 方法的参数个数只有一个，参数类型为接口
 2. 方法的参数如果包含对象，需要实现 Parcelable
 3. 注册的回调接口不需要定义为 aidl，在实现类中使用不需要使用 RemoteCallbackList
 4. 远程方法调用参数可以为 Serializable 的对象，其中包含的成员变量如果是对象，需要实现 Serializable
@@ -90,6 +90,10 @@ linkToDeath
 8. 集成 aar 的时候报错 `Duplicate class com.baidu.provider.Call found in modules jetified-provider_debug_20210310_1231-runtime`
 - 原因为 provider.aar 和 provider_server.aar 有重复的文件，然后一个app中又集成了这两个 aar。解决办法为手动删除 provider.aar 中的重复的文件，注意此时的 provider.aar
 是不能用户跨进程的 client app 中的
+
+9. 增加 service 通过 server 连接 client，这样 server 就可以主动调用 client 了
+
+
 
 ## 原理 demo
 com.baidu.provider.server.Test3

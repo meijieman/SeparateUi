@@ -50,6 +50,6 @@ dependencies {
 //    api(name: 'provider_server_debug_20210310_1230', ext: 'aar')
 
 
-    implementation project(path: ':common')
+    implementation project(path: ':provider_common')
 
 }

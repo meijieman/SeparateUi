@@ -1,7 +1,7 @@
-include ':protocol'
-include ':common'
 rootProject.name = "SeparateUi"
 
+include ':protocol'
+include ':provider_common'
 include ':provider'
 include ':provider_server'
 include ':third_part'

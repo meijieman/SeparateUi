@@ -29,6 +29,8 @@ public class App extends Application {
         super.onCreate();
         sApp = this;
 
+        XLog.init(this);
+
         String currentProcess = ProcessUtil.getCurrentProcessName(this);
         XLog.i(TAG, "onCreate 初始化实例, " + currentProcess);
         if (getPackageName().equals(currentProcess)) {

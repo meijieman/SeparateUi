@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.baidu.che.codriver.xlog.XLog;
-import com.baidu.provider.common.util.Slog;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -58,7 +57,7 @@ public class Connector {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Slog.w("链接断开，触发重连");
+            XLog.w(TAG, "链接断开，触发重连");
             mIsConnected.set(false);
         }
     };
@@ -66,7 +65,7 @@ public class Connector {
     private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            Slog.w("binder died");
+            XLog.w(TAG, "binder died");
             if (mICall == null) {
                 return;
             }
@@ -99,7 +98,7 @@ public class Connector {
         XLog.d(TAG, "intent " + intent.toURI());
         Intent explicitIntent = explicitIntent(ctx, intent);
         if (explicitIntent == null) {
-            Slog.e("绑定服务失败，服务不存在");
+            XLog.e(TAG, "绑定服务失败，服务不存在");
             return;
         }
         XLog.d(TAG, "explicitIntent " + explicitIntent.toURI());
@@ -112,13 +111,13 @@ public class Connector {
                     mCountDownLatch.await(500, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    Slog.e("链接超时 ");
+                    XLog.e(TAG, "链接超时 ");
                 }
             } else {
-                Slog.e("绑定服务失败，服务不存在2");
+                XLog.e(TAG, "绑定服务失败，服务不存在2");
             }
         } catch (Exception e) {
-            Slog.e("绑定服务失败 e " + e);
+            XLog.e(TAG, "绑定服务失败 e " + e);
             e.printStackTrace();
         }
     }
@@ -136,7 +135,7 @@ public class Connector {
             XLog.v(TAG, "收到结果 " + callResult);
             return callResult;
         } catch (Exception e) {
-            Slog.e("产生异常 " + e);
+            XLog.e(TAG, "产生异常 " + e);
             Call call1 = new Call();
             call1.setResult(e);
             return call1;

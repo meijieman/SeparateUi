@@ -1,7 +1,6 @@
 package com.baidu.provider;
 
 import com.baidu.che.codriver.xlog.XLog;
-import com.baidu.provider.common.util.Slog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -36,7 +35,7 @@ public class ServiceHandler implements InvocationHandler {
 //                if (!Arrays.asList(classes).contains(arg.getClass())
 //                        && (!(arg instanceof Parcelable)) && (!(arg instanceof Serializable))) {
 //                    Object o = retBase(returnType);
-//                    SLog.e(o + " 返回参数异常!!! " + Arrays.toString(args));
+//                    XLog.e(TAG,(o + " 返回参数异常!!! " + Arrays.toString(args));
 //                    return o;
 //                }
 //            }
@@ -61,13 +60,13 @@ public class ServiceHandler implements InvocationHandler {
         // 发送请求
         call = connector.sendCall(call);
         if (call == null) {
-            Slog.e("call is null");
+            XLog.e(TAG, "call is null");
             return null;
         }
         Object returnResult = call.getResult();
         if (returnResult instanceof Exception) {
             Object o = retBase(returnType);
-            Slog.e(o + "返回异常!!! " + returnResult);
+            XLog.e(TAG, o + "返回异常!!! " + returnResult);
             return o;
         }
 

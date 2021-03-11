@@ -10,7 +10,6 @@ import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
 import com.baidu.provider.ICall;
 import com.baidu.provider.common.DataCenter;
-import com.baidu.provider.common.util.Slog;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -29,6 +28,7 @@ import java.util.Map;
 public class ICallImpl extends ICall.Stub {
 
     private static final String TAG = "ICallImpl";
+
     public ICallImpl() {
         XLog.d(TAG, "pid " + Process.myPid());
     }
@@ -37,7 +37,7 @@ public class ICallImpl extends ICall.Stub {
 
     @Override
     public Call getCallResult(Call call) throws RemoteException {
-        Slog.w("收到请求 " + call + ", pid " + Process.myPid());
+        XLog.w(TAG, "收到请求 " + call + ", pid " + Process.myPid());
 
         String className = call.getClassName();
         String methodName = call.getMethodName();
@@ -50,7 +50,7 @@ public class ICallImpl extends ICall.Stub {
             // 以后可以通过编译时注解来解决，只需要接口中定义的方法对应上就可以
             List<Object> mImpls = DataCenter.getInstance().getImpls();
             if (mImpls.isEmpty()) {
-                Slog.e("默认初始化失败");
+                XLog.e(TAG, "默认初始化失败");
 //                mImpls.add(Class.forName("com.baidu.protocol.BookServiceImpl").newInstance());
 //                mImpls.add(Class.forName("com.baidu.protocol.RemoteViewServiceImpl").newInstance());
             }
@@ -136,7 +136,7 @@ public class ICallImpl extends ICall.Stub {
             call.setResult(result);
         } catch (Exception e) {
             e.printStackTrace();
-            Slog.e("报错啦 exception " + e);
+            XLog.e(TAG, "报错啦 exception " + e);
             call.setResult(e);
         }
 
@@ -175,7 +175,7 @@ public class ICallImpl extends ICall.Stub {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Slog.e("报错啦 " + e);
+            XLog.e(TAG, "报错啦 " + e);
         } finally {
             mCallbackList.finishBroadcast();
         }

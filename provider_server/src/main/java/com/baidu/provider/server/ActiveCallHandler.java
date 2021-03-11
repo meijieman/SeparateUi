@@ -1,7 +1,6 @@
 package com.baidu.provider.server;
 
 import com.baidu.che.codriver.xlog.XLog;
-import com.baidu.provider.common.util.Slog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -34,7 +33,7 @@ class ActiveCallHandler implements InvocationHandler {
             return method.invoke(mProxy, args);
         } catch (Exception e) {
             e.printStackTrace();
-            Slog.e("回调异常 " + e);
+            XLog.e(TAG, "回调异常 " + e);
         }
         return null;
     }

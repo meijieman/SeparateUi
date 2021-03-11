@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.baidu.che.codriver.xlog.XLog;
-import com.baidu.provider.common.util.Slog;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -81,7 +80,7 @@ class CallbackHandler implements InvocationHandler {
         } else if (boolean.class.isAssignableFrom(type)) {
             bundle.putBoolean(type.getName(), (boolean) arg);
         } else {
-            Slog.e("other type " + type);
+            XLog.e(TAG, "other type " + type);
         }
     }
 }

@@ -29,7 +29,7 @@ public class App extends Application {
         super.onCreate();
         sApp = this;
 
-        XLog.init(this);
+        XLog.init(this, new Slog());
 
         String currentProcess = ProcessUtil.getCurrentProcessName(this);
         XLog.i(TAG, "onCreate 初始化实例, " + currentProcess);

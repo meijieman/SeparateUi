@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.os.Parcelable;
 
 import com.baidu.che.codriver.xlog.XLog;
-import com.baidu.provider.common.util.Slog;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -63,7 +62,7 @@ public class CallbackExchanger {
                     try {
                         declaredMethod.invoke(obj, args);
                     } catch (Exception e) {
-                        Slog.e("回调调用发生异常 " + e);
+                        XLog.e(TAG, "回调调用发生异常 " + e);
                     }
                 });
                 break;
@@ -100,7 +99,7 @@ public class CallbackExchanger {
             } else if (boolean.class.isAssignableFrom(type)) {
                 args[i] = bundle.getBoolean(type.getName());
             } else {
-                Slog.e("other type " + type);
+                XLog.e(TAG, "other type " + type);
             }
         }
 

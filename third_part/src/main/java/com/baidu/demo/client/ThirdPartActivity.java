@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Provider;
-import com.baidu.provider.common.util.Slog;
 import com.baidu.provider.common.util.ToastUtil;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.OnViewShow;
@@ -121,7 +120,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             book.setAvailable(true);
 
             boolean result = bookService.addBook(book);
-            Slog.w("结果: " + result + ", used: " + (System.currentTimeMillis() - start));
+            XLog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
             mText.setText("添加 " + result);
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
@@ -135,18 +134,18 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             bookService.registerView(this);
         } else if (id == R.id.btn_count) {
             int count = bookService.getCount();
-            Slog.w("count " + count);
+            XLog.w(TAG, "count " + count);
             mText.setText("总数 " + count);
 
         } else if (id == R.id.btn_register) {
             //  java.lang.RuntimeException: Parcelable encountered ClassNotFoundException reading a Serializable object (name = com.baidu.demo.client.-$$Lambda$ThirdPartActivity$FCOslk6SrLTXtREJt5DrDBTydb4)
             long start = System.currentTimeMillis();
             bookService.register(mListener);
-            Slog.w("time used: " + (System.currentTimeMillis() - start));
+            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_unreg) {
             long start = System.currentTimeMillis();
             bookService.unregister(mListener);
-            Slog.w("time used: " + (System.currentTimeMillis() - start));
+            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_reg_comm) {
             bookService.regCallback(mCallback);
         } else if (id == R.id.btn_unreg_comm) {
@@ -173,7 +172,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
                 // 回调
                 XLog.i(TAG, "天气回调 " + payload);
             });
-            Slog.w("time used: " + (System.currentTimeMillis() - start));
+            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         }
     }
 
@@ -193,7 +192,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         long start = System.currentTimeMillis();
         WeatherPayload weatherPayload = service.showBodyView(payload);
         XLog.i(TAG, "weatherPayload " + weatherPayload);
-        Slog.w("time used: " + (System.currentTimeMillis() - start));
+        XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
     }
 
     @Override

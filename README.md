@@ -5,7 +5,7 @@
 
 对于注册回调，因为跨进程需要使用 aidl，定义一个通用的 CallbackProxy，注册回调监听，然后通过动态代理实现各种监听的注册和回调
 
-## 框架调用流程
+## 框架集成步骤
 1. 在 server app集成 
 ```
     implementation(name: 'provider_server_debug_20210309_1905', ext: 'aar')
@@ -58,7 +58,7 @@
 对于 register 开头的注册方法，如果参数类型为对象形式，则将其包装为 Call，传过去后再拆出来，封装成一个对象保存到 Map 中，可解决 register 失败的问题
 
 ## 注册回调的注意事项
-1. 注册的回调方法需要以 register 开头，反注册需要以 unregister 开头，注册的对象的方法需要使用 on 开头，register 方法的参数个数只有一个，参数类型为接口
+1. 注册的回调方法需要以 register 开头，反注册需要以 unregister 开头，register 方法的参数个数只有一个，参数类型为接口
 2. 方法的参数如果包含对象，需要实现 Parcelable
 3. 注册的回调接口不需要定义为 aidl，在实现类中使用不需要使用 RemoteCallbackList
 4. 远程方法调用参数可以为 Serializable 的对象，其中包含的成员变量如果是对象，需要实现 Serializable

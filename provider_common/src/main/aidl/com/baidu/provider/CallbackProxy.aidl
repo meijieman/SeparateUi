@@ -2,10 +2,11 @@
 package com.baidu.provider;
 
 import android.os.Bundle;
+import com.baidu.provider.Call;
 
 // Declare any non-default types here with import statements
 
 interface CallbackProxy {
 
-    void onChange(in Bundle bundle);
+    Call onChange(in Bundle bundle);
 }

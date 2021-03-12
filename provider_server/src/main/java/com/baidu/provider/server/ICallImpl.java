@@ -13,7 +13,6 @@ import com.baidu.provider.common.DataCenter;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,29 +154,39 @@ public class ICallImpl extends ICall.Stub {
         mCallbackList.unregister(proxy);
     }
 
-    void notifyCallback(Bundle bundle) {
+    Call notifyCallback(Bundle bundle) {
         XLog.v(TAG, "更新 " + bundle);
+        Call call = null;
         try {
             int count = mCallbackList.beginBroadcast();
-            if (count == 0) {
-                return;
-            }
             for (int i = 0; i < count; i++) {
                 CallbackProxy item = mCallbackList.getBroadcastItem(i);
                 try {
                     XLog.d(TAG, "发送更新 " + bundle);
                     // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
-                    item.onChange(bundle);
+                    Call temp = item.onChange(bundle);
+                    if (call == null) {
+                        call = temp;
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
+                    if (call == null) {
+                        call = new Call();
+                        call.setResult(e);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
             XLog.e(TAG, "报错啦 " + e);
+            if (call == null) {
+                call = new Call();
+                call.setResult(e);
+            }
         } finally {
             mCallbackList.finishBroadcast();
         }
+        return call;
     }
 
 }

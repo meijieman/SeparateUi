@@ -39,7 +39,7 @@ public class CallbackExchanger {
         XLog.i(TAG, "remove " + key);
     }
 
-    public void onChanged(Bundle bundle) {
+    public Call onChanged(Bundle bundle) {
         // 解决 android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
         bundle.setClassLoader(getClass().getClassLoader());
         String method = bundle.getString("method");
@@ -47,27 +47,40 @@ public class CallbackExchanger {
 //        Parcelable arg = bundle.getParcelable("arg");
         XLog.i(TAG, "objHash " + objHash + ", method " + method + ", bundle " + bundle);
 
+        Call call = new Call();
         Object obj = mMap.get(objHash);
         if (obj == null) {
             XLog.i(TAG, "not found method instance. " + method);
-            return;
+            call.setResult(new RuntimeException("not found method instance. " + method));
+            return call;
         }
         for (Method declaredMethod : obj.getClass().getDeclaredMethods()) {
             if (method.equals(declaredMethod.getName())) {
                 Object[] args = getParamsData(bundle, declaredMethod.getParameterTypes());
 
-//                declaredMethod.getReturnType() void.class
-                // 切换到ui线程
-                mHandler.post(() -> {
+                if (declaredMethod.getReturnType().isAssignableFrom(void.class)) {
+                    // 切换到ui线程
+                    mHandler.post(() -> {
+                        try {
+                            declaredMethod.invoke(obj, args);
+                        } catch (Exception e) {
+                            XLog.e(TAG, "回调调用发生异常 " + e);
+                        }
+                    });
+                    call.setResult(null);
+                } else {
+                    // 同步方法不切换线程，默认在 Binder 线程
                     try {
-                        declaredMethod.invoke(obj, args);
+                        Object invoke = declaredMethod.invoke(obj, args);
+                        call.setResult(invoke);
                     } catch (Exception e) {
-                        XLog.e(TAG, "回调调用发生异常 " + e);
+                        e.printStackTrace();
                     }
-                });
+                }
                 break;
             }
         }
+        return call;
     }
 
     private Object[] getParamsData(Bundle bundle, Class<?>[] types) {

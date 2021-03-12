@@ -1,5 +1,5 @@
-// 重命名生成的aar
-android.libraryVariants.all { variant ->
+// 重命名生成的 apk
+android.applicationVariants.all { variant ->
     variant.outputs.all {
         outputFileName = "${project.name}_${variant.name}_${releaseTime()}.aar"
         println("==> outputFileName = " + outputFileName);

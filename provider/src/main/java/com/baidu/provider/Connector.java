@@ -33,9 +33,11 @@ public class Connector {
     private final AtomicBoolean mIsConnected = new AtomicBoolean(false);
     private final CallbackProxy mCallback = new CallbackProxy.Stub() {
         @Override
-        public void onChange(Bundle bundle) throws RemoteException {
+        public Call onChange(Bundle bundle) throws RemoteException {
             XLog.i(TAG, "onChange " + bundle);
-            mExchanger.onChanged(bundle);
+            Call call = mExchanger.onChanged(bundle);
+            XLog.i(TAG, "call " + call);
+            return call;
         }
     };
 

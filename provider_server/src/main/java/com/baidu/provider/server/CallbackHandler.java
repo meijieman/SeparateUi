@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.Call;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -55,9 +56,17 @@ class CallbackHandler implements InvocationHandler {
 
         bundle.setClassLoader(getClass().getClassLoader());
         XLog.i(TAG, "回调 " + bundle);
-        mICall.notifyCallback(bundle);
+        Call call = mICall.notifyCallback(bundle);
+        if (call == null) {
+            return null;
+        }
+        Object returnResult = call.getResult();
+        // FIXME: 2021/3/12 判断是否返回 Exception
+        if (returnResult instanceof Exception) {
+            XLog.e(TAG, "回调返回异常!!! " + returnResult);
+        }
 
-        return null;
+        return returnResult;
     }
 
     private void putParamsData(Bundle bundle, Class<?> type, Object arg) {

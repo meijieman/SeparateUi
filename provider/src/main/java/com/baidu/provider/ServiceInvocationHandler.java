@@ -5,9 +5,9 @@ import com.baidu.che.codriver.xlog.XLog;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class ServiceHandler implements InvocationHandler {
+public class ServiceInvocationHandler implements InvocationHandler {
 
-    private static final String TAG = "ServiceHandler";
+    private static final String TAG = "ServiceInvocationHandle";
 
     private final Class<?> classType;
     private final Connector connector;
@@ -17,7 +17,7 @@ public class ServiceHandler implements InvocationHandler {
         return classType;
     }
 
-    public ServiceHandler(Class<?> classType, Connector connector, CallbackExchanger exchanger) {
+    public ServiceInvocationHandler(Class<?> classType, Connector connector, CallbackExchanger exchanger) {
         XLog.v(TAG, "classType " + classType);
         this.classType = classType;
         this.connector = connector;

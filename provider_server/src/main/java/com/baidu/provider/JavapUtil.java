@@ -16,7 +16,7 @@ public class JavapUtil {
      * 获取方法的签名 = 全类名 + 方法名 + javap -s 获取到的方法签名
      */
     public static String getSignature(Method method) {
-        // 直接哟个 Method#toString 更香啊
+        // 直接用 Method#toString 更香啊
         return method.getDeclaringClass().getCanonicalName() + "#" + method.getName() + getMethodDesc(method);
     }
 

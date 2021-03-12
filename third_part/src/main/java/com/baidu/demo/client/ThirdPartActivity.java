@@ -42,6 +42,16 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             XLog.i(TAG, "回调 " + result);
             mText.setText("收到更新 " + result);
         }
+
+        @Override
+        public void onChanged(Result result, int type) {
+
+        }
+
+        @Override
+        public String getDate(Result result) {
+            return null;
+        }
     };
     private final OnCommonCallback mCallback = new OnCommonCallback.Stub() {
         @Override

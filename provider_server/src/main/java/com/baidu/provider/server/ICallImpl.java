@@ -44,7 +44,6 @@ public class ICallImpl extends ICall.Stub {
         Object[] params = call.getParams();
         Class<?>[] paramsTypes = call.getParamTypes();
 
-        XLog.d(TAG, "反射 className " + className + ", " + methodName + ", " + Arrays.toString(params));
         try {
             // FIXME: 2021/1/21 定义的接口如 BookService，PersonService 及其参数对象的  className 需要创建的包名路径一致
             // 以后可以通过编译时注解来解决，只需要接口中定义的方法对应上就可以
@@ -92,7 +91,7 @@ public class ICallImpl extends ICall.Stub {
 
                 // 创建回调的实现类
                 Class<?> paramsType = paramsTypes[0];
-                CallbackHandler callback = new CallbackHandler(this, objHash);
+                CallbackHandler callback = new CallbackHandler(this, objHash, paramsType);
                 ClassLoader classLoader = invoker.getClass().getClassLoader();
                 Object callbackProxy = Proxy.newProxyInstance(classLoader, new Class[]{paramsType}, callback);
 

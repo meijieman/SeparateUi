@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 回调接口对应的对象的代理类 （本地进程-> 远程进程）
@@ -20,17 +22,21 @@ import java.util.Arrays;
 class CallbackHandler implements InvocationHandler {
 
     private static final String TAG = "CallbackHandler";
+
     private final ICallImpl mICall;
     private final int mObjHash;
+    private final Set<Method> mMethods = new HashSet<>();
 
-    public CallbackHandler(ICallImpl iCall, int objHash) {
+    public CallbackHandler(ICallImpl iCall, int objHash, Class<?> paramsType) {
         mICall = iCall;
         mObjHash = objHash;
+        mMethods.addAll(Arrays.asList(paramsType.getDeclaredMethods()));
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (!method.getName().startsWith("on")) {  // TODO: 2021/2/21 可以通过是否是接口中定义的方法来判断
+        if (!mMethods.contains(method)) {
+            // 不是接口中定义的方法，直接返回
             // 无法拿到动态代理对象的 toString，hashCode 方法，可以将 InvocationHandler 和 代理对象绑定，然后返回 InvocationHandler 的对应方法
             return method.invoke(this, args);
         }

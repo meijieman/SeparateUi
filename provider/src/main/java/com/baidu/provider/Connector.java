@@ -101,6 +101,9 @@ public class Connector {
             XLog.e(TAG, "绑定服务失败，服务不存在");
             return;
         }
+
+        // 正常输出explicitIntent #Intent;action=conn_service_2;component=com.baidu.che.codriver/com.baidu.provider.server.ConnService2;end
+        // 如果有多个 app 集成了 provider_server.aar 调用 com.baidu.provider.Connector#explicitIntent 会绑定失败
         XLog.d(TAG, "explicitIntent " + explicitIntent.toURI());
         try {
 //            explicitIntent.putExtra("pid", Process.myPid());
@@ -145,6 +148,7 @@ public class Connector {
     public static Intent explicitIntent(Context context, Intent implicitIntent) {
         List<ResolveInfo> resolveInfoList = context.getPackageManager().queryIntentServices(implicitIntent, 0);
         if (resolveInfoList == null || resolveInfoList.size() != 1) {
+            XLog.e(TAG, "查找服务失败 " + resolveInfoList);
             return null;
         }
         ResolveInfo serviceInfo = resolveInfoList.get(0);

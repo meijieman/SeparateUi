@@ -45,6 +45,32 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public Book addBook(Book book, String bookName) {
+        XLog.i(TAG, "overload book " + book + ", " + bookName);
+
+        if (mListeners.size() != 0) {
+            String date = mListeners.get(0).getDate(new Result());
+            XLog.i(TAG, "date " + date);
+        }
+
+        boolean add = mBooks.add(book);
+
+        // 模拟耗时
+        try {
+            XLog.i(TAG, "sleep 开始");
+            Thread.sleep(5_000);
+            XLog.i(TAG, "sleep 结束了");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (add) {
+            return book;
+        }
+        return null;
+    }
+
+    @Override
     public void removeBook(int no) {
         XLog.i(TAG, "no " + no);
         for (Book book : mBooks) {

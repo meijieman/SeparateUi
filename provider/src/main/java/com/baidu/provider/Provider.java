@@ -77,7 +77,7 @@ public class Provider {
             throw new RuntimeException("进程内请先调用 DataCenter2.getInstance#add 添加对应实现类");
         }
 
-        ServiceHandler handler = new ServiceHandler(clazz, connector, mExchanger);
+        ServiceInvocationHandler handler = new ServiceInvocationHandler(clazz, connector, mExchanger);
         Class<?> classType = handler.getClassType();
         Object proxy = Proxy.newProxyInstance(classType.getClassLoader(), new Class[]{classType}, handler);
         return (T) proxy;

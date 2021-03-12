@@ -15,6 +15,9 @@ public interface BookService extends NameService {
 
     boolean addBook(Book book);
 
+    // overload 方法
+    Book addBook(Book book, String str);
+
     void removeBook(int no);
 
     Book getBook(int id);
@@ -34,6 +37,8 @@ public interface BookService extends NameService {
     //FIXME 方法参数不能传递普通接口？
     // 2021-02-17 16:53:07 可以传递普通接口，但是接口中的参数需要是 Parcelable
     void register(OnBookListener listener);
+
+//    void register(OnBookListener listener, String str);
 
     void unregister(OnBookListener listener);
 

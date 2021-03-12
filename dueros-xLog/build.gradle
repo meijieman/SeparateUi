@@ -1,2 +1,2 @@
 configurations.maybeCreate("default")
-artifacts.add("default", file("xLog-release-1125-2000.aar"))
+artifacts.add("default", file("xLog-release-20210312-1031.aar"))

@@ -30,7 +30,14 @@ public class DataCenter {
     private final Map<Class<?>, Object> mMap = new HashMap<>();
 
     public void add(Object impl) {
-        mMap.put(impl.getClass(), impl);
+        if (!impl.getClass().isInterface()) {
+            Slog.e(TAG, "传入的是接口");
+        } else {
+            Class<?>[] interfaces = impl.getClass().getInterfaces();
+            for (Class<?> anInterface : interfaces) {
+                mMap.put(anInterface, impl);
+            }
+        }
     }
 
     public <T> T get(Class<T> clazz) {
@@ -43,7 +50,7 @@ public class DataCenter {
             Set<Class<?>> classes = mMap.keySet();
             for (Class<?> aClass : classes) {
                 if (clazz.isAssignableFrom(aClass)) {
-                    Slog.i(TAG, "get instance across process");
+                    Slog.i(TAG, "get instance in process");
                     return (T) mMap.get(aClass);
                 }
             }

@@ -30,7 +30,7 @@ public class DataCenter {
     private final Map<Class<?>, Object> mMap = new HashMap<>();
 
     public void add(Object impl) {
-        if (!impl.getClass().isInterface()) {
+        if (impl.getClass().isInterface() || impl == Class.class) {
             Slog.e(TAG, "传入的是接口");
         } else {
             Class<?>[] interfaces = impl.getClass().getInterfaces();

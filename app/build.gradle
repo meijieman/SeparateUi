@@ -44,12 +44,13 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation project(path: ':provider_server')
-    implementation project(path: ':provider')
-//    api(name: 'provider_debug_20210310_1231', ext: 'aar')
-//    api(name: 'provider_server_debug_20210310_1230', ext: 'aar')
+//    implementation project(path: ':provider_server')
+//    implementation project(path: ':provider')
+//    implementation project(path: ':provider_common')
 
+    api(name: 'provider_server_release_20210315_1107', ext: 'aar')
+    api(name: 'provider_release_20210315_1130', ext: 'aar')
+    api(name: 'provider_common_release_20210315_1106', ext: 'aar')
 
-    implementation project(path: ':provider_common')
 
 }

@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -29,14 +29,14 @@ public class CallbackExchanger {
         int key = obj.hashCode();
         if (mMap.get(key) == null) {
             mMap.put(key, obj);
-            XLog.i(TAG, "add " + key + ", " + obj);
+            Slog.i(TAG, "add " + key + ", " + obj);
         }
     }
 
     public void remove(Object obj) {
         int key = obj.hashCode();
         mMap.remove(key);
-        XLog.i(TAG, "remove " + key);
+        Slog.i(TAG, "remove " + key);
     }
 
     public Call onChanged(Bundle bundle) {
@@ -45,12 +45,12 @@ public class CallbackExchanger {
         String method = bundle.getString("method");
         int objHash = bundle.getInt("objHash");
 //        Parcelable arg = bundle.getParcelable("arg");
-        XLog.i(TAG, "objHash " + objHash + ", method " + method + ", bundle " + bundle);
+        Slog.i(TAG, "objHash " + objHash + ", method " + method + ", bundle " + bundle);
 
         Call call = new Call();
         Object obj = mMap.get(objHash);
         if (obj == null) {
-            XLog.d(TAG, "not found method instance. " + method);
+            Slog.d(TAG, "not found method instance. " + method);
             call.setResult(new RuntimeException("not found method instance. " + method));
             return call;
         }
@@ -64,7 +64,7 @@ public class CallbackExchanger {
                         try {
                             declaredMethod.invoke(obj, args);
                         } catch (Exception e) {
-                            XLog.e(TAG, "回调调用发生异常 " + e);
+                            Slog.e(TAG, "回调调用发生异常 " + e);
                         }
                     });
                     call.setResult(null);
@@ -112,7 +112,7 @@ public class CallbackExchanger {
             } else if (boolean.class.isAssignableFrom(type)) {
                 args[i] = bundle.getBoolean(type.getName());
             } else {
-                XLog.e(TAG, "other type " + type);
+                Slog.e(TAG, "other type " + type);
             }
         }
 

@@ -2,8 +2,8 @@ package com.baidu.separate;
 
 import android.app.Application;
 
-import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.common.DataCenter;
+import com.baidu.provider.common.Slog;
 import com.baidu.separate.impl.BookServiceImpl;
 import com.baidu.separate.impl.RemoteViewServiceImpl;
 import com.baidu.separate.impl.WeatherServiceImpl;
@@ -29,10 +29,8 @@ public class App extends Application {
         super.onCreate();
         sApp = this;
 
-        XLog.init(this, new Slog());
-
         String currentProcess = ProcessUtil.getCurrentProcessName(this);
-        XLog.i(TAG, "onCreate 初始化实例, " + currentProcess);
+        Slog.i(TAG, "onCreate 初始化实例, " + currentProcess);
         if (getPackageName().equals(currentProcess)) {
             DataCenter.getInstance().add(new BookServiceImpl());
             DataCenter.getInstance().add(new WeatherServiceImpl());

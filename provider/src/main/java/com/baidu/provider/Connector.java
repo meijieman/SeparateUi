@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Connector {
     private static final String TAG = "Connector";
+
     private final CallbackExchanger mExchanger;
 
     public Connector(CallbackExchanger exchanger) {
@@ -34,9 +35,9 @@ public class Connector {
     private final CallbackProxy mCallback = new CallbackProxy.Stub() {
         @Override
         public Call onChange(Bundle bundle) throws RemoteException {
-            XLog.i(TAG, "onChange " + bundle);
+            Slog.i(TAG, "onChange " + bundle);
             Call call = mExchanger.onChanged(bundle);
-            XLog.i(TAG, "call " + call);
+            Slog.i(TAG, "call " + call);
             return call;
         }
     };
@@ -45,7 +46,7 @@ public class Connector {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mICall = ICall.Stub.asInterface(service);
-            XLog.i(TAG, "连接成功, " + Thread.currentThread().getName());
+            Slog.i(TAG, "连接成功, " + Thread.currentThread().getName());
 
             try {
                 mICall.asBinder().linkToDeath(mDeathRecipient, 0);
@@ -59,7 +60,7 @@ public class Connector {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            XLog.w(TAG, "链接断开，触发重连");
+            Slog.w(TAG, "链接断开，触发重连");
             mIsConnected.set(false);
         }
     };
@@ -67,7 +68,7 @@ public class Connector {
     private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            XLog.w(TAG, "binder died");
+            Slog.w(TAG, "binder died");
             if (mICall == null) {
                 return;
             }
@@ -80,10 +81,10 @@ public class Connector {
      * 创建链接
      */
     public void connect(Context ctx, boolean ipc) {
-        XLog.i(TAG, "连接 ");
+        Slog.i(TAG, "连接 ");
 
         if (mIsConnected.get()) {
-            XLog.i(TAG, "重复连接，返回 ");
+            Slog.i(TAG, "重复连接，返回 ");
             return;
         }
         // 链接对象
@@ -97,38 +98,38 @@ public class Connector {
             }
             intent = new Intent("conn_service");
         }
-        XLog.d(TAG, "intent " + intent.toURI());
+        Slog.d(TAG, "intent " + intent.toURI());
         Intent explicitIntent = explicitIntent(ctx, intent);
         if (explicitIntent == null) {
-            XLog.e(TAG, "绑定服务失败，服务不存在");
+            Slog.e(TAG, "绑定服务失败，服务不存在");
             return;
         }
 
         // 正常输出explicitIntent #Intent;action=conn_service_2;component=com.baidu.che.codriver/com.baidu.provider.server.ConnService2;end
         // 如果有多个 app 集成了 provider_server.aar 调用 com.baidu.provider.Connector#explicitIntent 会绑定失败
-        XLog.d(TAG, "explicitIntent " + explicitIntent.toURI());
+        Slog.d(TAG, "explicitIntent " + explicitIntent.toURI());
         try {
 //            explicitIntent.putExtra("pid", Process.myPid());
             boolean isSuccess = ctx.bindService(explicitIntent, mConn, Context.BIND_AUTO_CREATE);
-            XLog.v(TAG, "bind " + isSuccess + ", " + Thread.currentThread().getName());
+            Slog.v(TAG, "bind " + isSuccess + ", " + Thread.currentThread().getName());
             if (isSuccess) {
                 try {
                     mCountDownLatch.await(500, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    XLog.e(TAG, "链接超时 ");
+                    Slog.e(TAG, "链接超时 ");
                 }
             } else {
-                XLog.e(TAG, "绑定服务失败，服务不存在2");
+                Slog.e(TAG, "绑定服务失败，服务不存在2");
             }
         } catch (Exception e) {
-            XLog.e(TAG, "绑定服务失败 e " + e);
+            Slog.e(TAG, "绑定服务失败 e " + e);
             e.printStackTrace();
         }
     }
 
     public Call sendCall(Call call) {
-        XLog.v(TAG, "发送请求 " + call);
+        Slog.v(TAG, "发送请求 " + call);
         if (mICall == null) {
             Call call1 = new Call();
             call1.setResult(new RuntimeException("绑定服务失败"));
@@ -137,10 +138,10 @@ public class Connector {
 
         try {
             Call callResult = mICall.getCallResult(call);
-            XLog.v(TAG, "收到结果 " + callResult);
+            Slog.v(TAG, "收到结果 " + callResult);
             return callResult;
         } catch (Exception e) {
-            XLog.e(TAG, "产生异常 " + e);
+            Slog.e(TAG, "产生异常 " + e);
             Call call1 = new Call();
             call1.setResult(e);
             return call1;
@@ -150,7 +151,7 @@ public class Connector {
     public static Intent explicitIntent(Context context, Intent implicitIntent) {
         List<ResolveInfo> resolveInfoList = context.getPackageManager().queryIntentServices(implicitIntent, 0);
         if (resolveInfoList == null || resolveInfoList.size() != 1) {
-            XLog.e(TAG, "查找服务失败 " + resolveInfoList);
+            Slog.e(TAG, "查找服务失败 " + resolveInfoList);
             return null;
         }
         ResolveInfo serviceInfo = resolveInfoList.get(0);

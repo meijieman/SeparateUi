@@ -3,7 +3,7 @@ package com.baidu.provider;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 import java.util.Arrays;
 
@@ -53,7 +53,7 @@ public class Call implements Parcelable {
             dest.writeArray(params);
             dest.writeArray(result);
         } catch (Exception e) {
-            XLog.e(TAG, "write ex " + e);
+            Slog.e(TAG, "write ex " + e);
         }
     }
 

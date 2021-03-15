@@ -1,6 +1,6 @@
 package com.baidu.provider.server;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -28,12 +28,12 @@ class ActiveCallHandler implements InvocationHandler {
         // 为什么会调用到  public java.lang.String java.lang.Object.toString()
         // 因为 com.baidu.separate.impl.BookServiceImpl.register 方法打印了 listener
 
-        XLog.i(TAG, "回调被调用, method " + method + ", " + Arrays.toString(args) + ", " + new Throwable().getStackTrace());
+        Slog.i(TAG, "回调被调用, method " + method + ", " + Arrays.toString(args) + ", " + new Throwable().getStackTrace());
         try {
             return method.invoke(mProxy, args);
         } catch (Exception e) {
             e.printStackTrace();
-            XLog.e(TAG, "回调异常 " + e);
+            Slog.e(TAG, "回调异常 " + e);
         }
         return null;
     }

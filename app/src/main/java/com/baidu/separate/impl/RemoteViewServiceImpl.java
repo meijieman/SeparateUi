@@ -5,7 +5,7 @@ import android.os.Process;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 import com.baidu.separate.App;
 import com.baidu.separate.MainActivity;
 import com.baidu.separate.protocol.RemoteViewService;
@@ -24,12 +24,12 @@ public class RemoteViewServiceImpl implements RemoteViewService {
     @Override
     public void sendData(Bundle bundle) {
         RemoteViews remoteView = bundle.getParcelable("remote_view");
-        XLog.i(TAG, "收到数据 remoteView " + remoteView);
+        Slog.i(TAG, "收到数据 remoteView " + remoteView);
 
         View view = remoteView.apply(App.getContext(), null);
         int layoutId = remoteView.getLayoutId();
-        XLog.i(TAG, "收到数据 view " + view + ", layoutId " + layoutId + ", " + Thread.currentThread());
-        XLog.i(TAG, "收到数据 mOnTransform " + MainActivity.mOnTransform + ", pid " + Process.myPid());
+        Slog.i(TAG, "收到数据 view " + view + ", layoutId " + layoutId + ", " + Thread.currentThread());
+        Slog.i(TAG, "收到数据 mOnTransform " + MainActivity.mOnTransform + ", pid " + Process.myPid());
         if (MainActivity.mOnTransform != null) {
             MainActivity.mOnTransform.onReceived(view);
         }

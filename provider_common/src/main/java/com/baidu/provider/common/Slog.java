@@ -1,10 +1,7 @@
-package com.baidu.separate;
+package com.baidu.provider.common;
 
-import android.content.Context;
 import android.os.Process;
 import android.util.Log;
-
-import com.baidu.che.codriver.xlog.ILog;
 
 /**
  * TODO
@@ -13,7 +10,7 @@ import com.baidu.che.codriver.xlog.ILog;
  * @since 2021/1/7 12:29 PM
  */
 
-public class Slog implements ILog {
+public class Slog {
     private static final String TAG = "==##";
 
     private static String getTrace() {
@@ -35,48 +32,27 @@ public class Slog implements ILog {
         return sb.toString();
     }
 
-    @Override
-    public void init(Context context) {
-
-    }
-
-    @Override
-    public void setLogLevel(int i) {
-
-    }
-
-    @Override
-    public void setLogFileLevel(int i) {
-
-    }
-
-    @Override
-    public void v(String s, Object msg) {
+    public static void v(String s, Object msg) {
         Log.v(TAG, getTrace() + msg);
     }
 
-    @Override
-    public void d(String s, Object msg) {
+    public static void d(String s, Object msg) {
         Log.d(TAG, getTrace() + msg);
     }
 
-    @Override
-    public void i(String s, Object msg) {
+    public static void i(String s, Object msg) {
         Log.i(TAG, getTrace() + msg);
     }
 
-    @Override
-    public void w(String s, Object msg) {
+    public static void w(String s, Object msg) {
         Log.w(TAG, getTrace() + msg);
     }
 
-    @Override
-    public void e(String s, Object msg) {
+    public static void e(String s, Object msg) {
         Log.e(TAG, getTrace() + msg);
     }
 
-    @Override
-    public void e(String s, Object msg, Throwable throwable) {
+    public static void e(String s, Object msg, Throwable throwable) {
         Log.e(TAG, getTrace() + msg + throwable);
     }
 }

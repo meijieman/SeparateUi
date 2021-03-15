@@ -7,8 +7,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Provider;
+import com.baidu.provider.common.Slog;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.bean.Book;
 import com.baidu.separate.protocol.bean.Result;
@@ -23,13 +23,13 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            XLog.i(TAG, "result " + result);
+            Slog.i(TAG, "result " + result);
             mText.setText("收到更新 " + result);
         }
 
         @Override
         public void onChanged(Result result, int type) {
-            XLog.i(TAG, "result " + result + ", type " + type);
+            Slog.i(TAG, "result " + result + ", type " + type);
         }
 
         @Override
@@ -50,7 +50,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client);
-        XLog.d(TAG, "init client");
+        Slog.d(TAG, "init client");
 
         findViewById(R.id.btn_add).setOnClickListener(this);
         findViewById(R.id.btn_add_overload).setOnClickListener(this);
@@ -63,7 +63,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         ImageView img = findViewById(R.id.iv_img);
 
         String currentProcessName = ProcessUtil.getCurrentProcessName(this);
-        XLog.i(TAG, "packageName " + getPackageName() + ", processName " + currentProcessName);
+        Slog.i(TAG, "packageName " + getPackageName() + ", processName " + currentProcessName);
         boolean isIpc = !getPackageName().equals(currentProcessName);
         // 初始化
         Provider.getInstance().init(ClientActivity.this, isIpc);
@@ -83,7 +83,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
             book.setAvailable(true);
 
             boolean result = bookService.addBook(book);
-            XLog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
             mText.setText("添加 " + result);
         } else if (id == R.id.btn_add_overload) {
             long start = System.currentTimeMillis();
@@ -94,24 +94,24 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
             book.setAvailable(true);
 
             Book result = bookService.addBook(book, "第一行代码");
-            XLog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
 
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
         } else if (id == R.id.btn_count) {
             long start = System.currentTimeMillis();
             int count = bookService.getCount();
-            XLog.w(TAG, "count " + count);
+            Slog.w(TAG, "count " + count);
             mText.setText("总数 " + count);
-            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_register) {
             long start = System.currentTimeMillis();
             bookService.register(mListener);
-            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_unreg) {
             long start = System.currentTimeMillis();
             bookService.unregister(mListener);
-            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         }
     }
 

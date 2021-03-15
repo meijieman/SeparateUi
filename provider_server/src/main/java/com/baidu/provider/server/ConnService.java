@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.Process;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 /**
  * TODO
@@ -20,13 +20,13 @@ public class ConnService extends android.app.Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        XLog.i(TAG, "onCreate pid " + Process.myPid());
+        Slog.i(TAG, "onCreate pid " + Process.myPid());
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         ICallImpl iCall = new ICallImpl();
-        XLog.i(TAG, "iCall pid " + Process.myPid());
+        Slog.i(TAG, "iCall pid " + Process.myPid());
         return iCall;
     }
 }

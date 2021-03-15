@@ -4,11 +4,11 @@ import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
-import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
 import com.baidu.provider.ICall;
 import com.baidu.provider.common.DataCenter;
+import com.baidu.provider.common.Slog;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -27,14 +27,14 @@ public class ICallImpl extends ICall.Stub {
     private static final String TAG = "ICallImpl";
 
     public ICallImpl() {
-        XLog.d(TAG, "pid " + Process.myPid());
+        Slog.d(TAG, "pid " + Process.myPid());
     }
 
     private final Map<Integer, Object> mMapping = new HashMap<>(); // key 远程对象嗯 hashCode，value 本地对象
 
     @Override
     public Call getCallResult(Call call) throws RemoteException {
-        XLog.w(TAG, "收到请求 " + call + ", pid " + Process.myPid());
+        Slog.w(TAG, "收到请求 " + call + ", pid " + Process.myPid());
 
         String className = call.getClassName();
         String methodName = call.getMethodName();
@@ -53,7 +53,7 @@ public class ICallImpl extends ICall.Stub {
             }
             // 获取所要调用的方法
             Method method = classType.getMethod(methodName, paramsTypes);
-            XLog.v(TAG, "method " + method);
+            Slog.v(TAG, "method " + method);
 
 //            if (params != null && params[0] instanceof IBinder) {
 //                String canonicalName = paramsTypes[0].getCanonicalName();
@@ -67,7 +67,7 @@ public class ICallImpl extends ICall.Stub {
                 // register 的参数必须为对应 Object 的 hashcode
                 int objHash = (int) params[0];
                 if (mMapping.get(objHash) != null) {
-                    XLog.d(TAG, "不能重复注册相同的对象");
+                    Slog.d(TAG, "不能重复注册相同的对象");
                     call.setResult(new RuntimeException("不能重复注册相同的对象"));
                     return call;
                 }
@@ -102,7 +102,7 @@ public class ICallImpl extends ICall.Stub {
                     mMapping.remove(objHash);
                 } else {
                     call.setResult(new RuntimeException("未找到对应的 objHash， unregister 失败 " + params[0]));
-                    XLog.d(TAG, "未找到对应的 objHash， unregister 失败 " + params[0]);
+                    Slog.d(TAG, "未找到对应的 objHash， unregister 失败 " + params[0]);
                     return call;
                 }
             }
@@ -118,11 +118,11 @@ public class ICallImpl extends ICall.Stub {
             call.setResult(result);
         } catch (Exception e) {
             e.printStackTrace();
-            XLog.e(TAG, "报错啦 exception " + e);
+            Slog.e(TAG, "报错啦 exception " + e);
             call.setResult(e);
         }
 
-        XLog.v(TAG, "发送结果 " + call);
+        Slog.v(TAG, "发送结果 " + call);
         return call;
     }
 

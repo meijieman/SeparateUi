@@ -1,7 +1,5 @@
 package com.baidu.provider.common;
 
-import com.baidu.che.codriver.xlog.XLog;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,18 +36,18 @@ public class DataCenter {
     public <T> T get(Class<T> clazz) {
         Object obj = mMap.get(clazz);
         if (obj != null) {
-            XLog.i(TAG, "get instance");
+            Slog.i(TAG, "get instance");
             return (T) obj;
         } else {
             // 2021/2/6  如果传入的是父接口，向下查找其子接口，在 mMap 中查找是否有实现类
             Set<Class<?>> classes = mMap.keySet();
             for (Class<?> aClass : classes) {
                 if (clazz.isAssignableFrom(aClass)) {
-                    XLog.i(TAG, "get instance across process");
+                    Slog.i(TAG, "get instance across process");
                     return (T) mMap.get(aClass);
                 }
             }
-            XLog.i(TAG, "get instance 3");
+            Slog.i(TAG, "get instance 3");
             return null;
         }
     }

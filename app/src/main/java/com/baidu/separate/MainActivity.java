@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 /**
  * TODO
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        XLog.i(TAG, "init main");
+        Slog.i(TAG, "init main");
 
         setContentView(R.layout.activity_main);
 
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout fl = findViewById(R.id.fl_main);
 
         mOnTransform = view -> {
-            XLog.i(TAG, "view 收到 " + view + ", pid " + Process.myPid());
+            Slog.i(TAG, "view 收到 " + view + ", pid " + Process.myPid());
             fl.post(() -> {
                 fl.removeAllViews();
                 fl.addView(view);

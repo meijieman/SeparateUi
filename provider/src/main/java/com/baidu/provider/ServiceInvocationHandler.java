@@ -1,6 +1,6 @@
 package com.baidu.provider;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -18,7 +18,7 @@ public class ServiceInvocationHandler implements InvocationHandler {
     }
 
     public ServiceInvocationHandler(Class<?> classType, Connector connector, CallbackExchanger exchanger) {
-        XLog.v(TAG, "classType " + classType);
+        Slog.v(TAG, "classType " + classType);
         this.classType = classType;
         this.connector = connector;
         this.exchanger = exchanger;
@@ -56,17 +56,17 @@ public class ServiceInvocationHandler implements InvocationHandler {
         }
         // 封装请求信息
         Call call = new Call(classType.getName(), method.getName(), method.getParameterTypes(), args);
-        XLog.v(TAG, "动态代理 " + call);
+        Slog.v(TAG, "动态代理 " + call);
         // 发送请求
         call = connector.sendCall(call);
         if (call == null) {
-            XLog.e(TAG, "call is null");
+            Slog.e(TAG, "call is null");
             return null;
         }
         Object returnResult = call.getResult();
         if (returnResult instanceof Exception) {
             Object o = retBase(returnType);
-            XLog.e(TAG, o + "返回异常!!! " + returnResult);
+            Slog.e(TAG, o + "返回异常!!! " + returnResult);
             return o;
         }
 
@@ -75,9 +75,9 @@ public class ServiceInvocationHandler implements InvocationHandler {
         }
         // 判断方法返回值是否为 void，如果为 void 且没有报错，则不关心返回结果
         if (returnType.isAssignableFrom(void.class)) {
-            XLog.i(TAG, "void");
+            Slog.i(TAG, "void");
         } else {
-            XLog.v(TAG, ">>>> 返回结果 " + call);
+            Slog.v(TAG, ">>>> 返回结果 " + call);
         }
         return returnResult;
     }

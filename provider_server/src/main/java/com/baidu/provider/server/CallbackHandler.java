@@ -5,9 +5,9 @@ import android.os.Parcelable;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
-import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Call;
 import com.baidu.provider.CallbackProxy;
+import com.baidu.provider.common.Slog;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -44,7 +44,7 @@ class CallbackHandler implements InvocationHandler {
             // 无法拿到动态代理对象的 toString，hashCode 方法，可以将 InvocationHandler 和 代理对象绑定，然后返回 InvocationHandler 的对应方法
             return method.invoke(this, args);
         }
-        XLog.i(TAG, "回调代理, method " + method + ", " + Arrays.toString(args));
+        Slog.i(TAG, "回调代理, method " + method + ", " + Arrays.toString(args));
         Class<?>[] types = method.getParameterTypes();
         if (args.length != types.length) {
             throw new RuntimeException("参数列表错误");
@@ -58,7 +58,7 @@ class CallbackHandler implements InvocationHandler {
         }
 
         bundle.setClassLoader(getClass().getClassLoader());
-        XLog.i(TAG, "回调 " + bundle);
+        Slog.i(TAG, "回调 " + bundle);
         Call call = notifyCallback(bundle);
         if (call == null) {
             return null;
@@ -66,14 +66,14 @@ class CallbackHandler implements InvocationHandler {
         Object returnResult = call.getResult();
         // FIXME: 2021/3/12 判断是否返回 Exception
         if (returnResult instanceof Exception) {
-            XLog.e(TAG, "回调返回异常!!! " + returnResult);
+            Slog.e(TAG, "回调返回异常!!! " + returnResult);
         }
 
         return returnResult;
     }
 
     private Call notifyCallback(Bundle bundle) {
-        XLog.v(TAG, "更新 " + bundle);
+        Slog.v(TAG, "更新 " + bundle);
         if (mCallbackList == null) {
             return null;
         }
@@ -83,7 +83,7 @@ class CallbackHandler implements InvocationHandler {
             for (int i = 0; i < count; i++) {
                 CallbackProxy item = mCallbackList.getBroadcastItem(i);
                 try {
-                    XLog.d(TAG, "发送更新 " + bundle);
+                    Slog.d(TAG, "发送更新 " + bundle);
                     // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
                     Call temp = item.onChange(bundle);
                     if (call == null) {
@@ -99,7 +99,7 @@ class CallbackHandler implements InvocationHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            XLog.e(TAG, "报错啦 " + e);
+            Slog.e(TAG, "报错啦 " + e);
             if (call == null) {
                 call = new Call();
                 call.setResult(e);
@@ -136,7 +136,7 @@ class CallbackHandler implements InvocationHandler {
         } else if (boolean.class.isAssignableFrom(type)) {
             bundle.putBoolean(type.getName(), (boolean) arg);
         } else {
-            XLog.e(TAG, "other type " + type);
+            Slog.e(TAG, "other type " + type);
         }
     }
 }

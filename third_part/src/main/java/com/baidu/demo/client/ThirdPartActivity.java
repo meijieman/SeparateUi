@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baidu.che.codriver.xlog.XLog;
+import com.baidu.provider.common.Slog;
 import com.baidu.provider.Provider;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.OnViewShow;
@@ -38,7 +38,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
     private final OnBookListener mListener = new OnBookListener() {
         @Override
         public void onChanged(Result result) {
-            XLog.i(TAG, "回调 " + result);
+            Slog.i(TAG, "回调 " + result);
             mText.setText("收到更新 " + result);
         }
 
@@ -55,7 +55,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
     private final OnCommonCallback mCallback = new OnCommonCallback.Stub() {
         @Override
         public void onChanged(Bundle data) throws RemoteException {
-            XLog.i(TAG, "callback " + data);
+            Slog.i(TAG, "callback " + data);
             mText.setText("callback " + data);
         }
     };
@@ -64,7 +64,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         @Override
         public void onReceive(Context context, Intent intent) {
             // 界面显示在其他进程，单其逻辑还运行在本进程
-            XLog.i(TAG, "点击按钮===");
+            Slog.i(TAG, "点击按钮===");
             ToastUtil.getInstance().showShort("点击按钮");
             mRemoteView.setTextViewText(R.id.tv_text, "" + System.currentTimeMillis() % 100);
             Bundle b = new Bundle();
@@ -100,10 +100,10 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
         ImageView img = findViewById(R.id.iv_img);
 
         ToastUtil.getInstance().init(this);
-        XLog.i(TAG, "onCreate");
+        Slog.i(TAG, "onCreate");
         // 初始化
         Provider.getInstance().init(getApplicationContext(), true);
-        XLog.i(TAG, "init end");
+        Slog.i(TAG, "init end");
 
         IntentFilter filter = new IntentFilter(ACTION_CLICK);
         registerReceiver(mReceiver, filter);
@@ -129,7 +129,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             book.setAvailable(true);
 
             boolean result = bookService.addBook(book);
-            XLog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "结果: " + result + ", used: " + (System.currentTimeMillis() - start));
             mText.setText("添加 " + result);
         } else if (id == R.id.btn_remove) {
             bookService.removeBook(0);
@@ -137,24 +137,24 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             // 参数为接口
             Student student = new Student();
             boolean result = bookService.borrowBook(student);
-            XLog.i(TAG, "borrow result " + result);
+            Slog.i(TAG, "borrow result " + result);
 
         } else if (id == R.id.btn_reg_remove) {
             bookService.registerView(this);
         } else if (id == R.id.btn_count) {
             int count = bookService.getCount();
-            XLog.w(TAG, "count " + count);
+            Slog.w(TAG, "count " + count);
             mText.setText("总数 " + count);
 
         } else if (id == R.id.btn_register) {
             //  java.lang.RuntimeException: Parcelable encountered ClassNotFoundException reading a Serializable object (name = com.baidu.demo.client.-$$Lambda$ThirdPartActivity$FCOslk6SrLTXtREJt5DrDBTydb4)
             long start = System.currentTimeMillis();
             bookService.register(mListener);
-            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_unreg) {
             long start = System.currentTimeMillis();
             bookService.unregister(mListener);
-            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         } else if (id == R.id.btn_reg_comm) {
             bookService.regCallback(mCallback);
         } else if (id == R.id.btn_unreg_comm) {
@@ -167,7 +167,7 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             Intent intent = new Intent(ACTION_CLICK);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
             mRemoteView.setOnClickPendingIntent(R.id.btn_add, pendingIntent);
-            XLog.i(TAG, "发送数据 remoteView " + mRemoteView + ", pid " + Process.myPid());
+            Slog.i(TAG, "发送数据 remoteView " + mRemoteView + ", pid " + Process.myPid());
 
             Bundle b = new Bundle();
             b.putParcelable("remote_view", mRemoteView);
@@ -179,9 +179,9 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
             long start = System.currentTimeMillis();
             service.registerCallback(payload -> {
                 // 回调
-                XLog.i(TAG, "天气回调 " + payload);
+                Slog.i(TAG, "天气回调 " + payload);
             });
-            XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+            Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
         }
     }
 
@@ -200,8 +200,8 @@ public class ThirdPartActivity extends AppCompatActivity implements View.OnClick
 
         long start = System.currentTimeMillis();
         WeatherPayload weatherPayload = service.showBodyView(payload);
-        XLog.i(TAG, "weatherPayload " + weatherPayload);
-        XLog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
+        Slog.i(TAG, "weatherPayload " + weatherPayload);
+        Slog.w(TAG, "time used: " + (System.currentTimeMillis() - start));
     }
 
     @Override

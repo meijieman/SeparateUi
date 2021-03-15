@@ -92,7 +92,9 @@ class Connector {
         // 连接远程服务
         Intent intent = new Intent("com_baidu_provider_conn_service");
         if (targetPackageName != null) {
-            intent.setPackage(targetPackageName);
+//            intent.setPackage(targetPackageName);
+            ComponentName component = new ComponentName(targetPackageName, "com.baidu.provider.server.ConnService");
+            intent.setComponent(component);
         } else {
             intent = explicitIntent(ctx, intent);
             if (intent == null) {

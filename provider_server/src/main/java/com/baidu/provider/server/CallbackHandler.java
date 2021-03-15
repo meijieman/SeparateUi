@@ -2,9 +2,12 @@ package com.baidu.provider.server;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 
 import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Call;
+import com.baidu.provider.CallbackProxy;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -24,12 +27,12 @@ class CallbackHandler implements InvocationHandler {
 
     private static final String TAG = "CallbackHandler";
 
-    private final ICallImpl mICall;
     private final int mObjHash;
     private final Set<Method> mMethods = new HashSet<>();
+    private final RemoteCallbackList<CallbackProxy> mCallbackList;
 
-    public CallbackHandler(ICallImpl iCall, int objHash, Class<?> paramsType) {
-        mICall = iCall;
+    public CallbackHandler(RemoteCallbackList<CallbackProxy> callbackList, int objHash, Class<?> paramsType) {
+        mCallbackList = callbackList;
         mObjHash = objHash;
         mMethods.addAll(Arrays.asList(paramsType.getDeclaredMethods()));
     }
@@ -56,7 +59,7 @@ class CallbackHandler implements InvocationHandler {
 
         bundle.setClassLoader(getClass().getClassLoader());
         XLog.i(TAG, "回调 " + bundle);
-        Call call = mICall.notifyCallback(bundle);
+        Call call = notifyCallback(bundle);
         if (call == null) {
             return null;
         }
@@ -67,6 +70,44 @@ class CallbackHandler implements InvocationHandler {
         }
 
         return returnResult;
+    }
+
+    private Call notifyCallback(Bundle bundle) {
+        XLog.v(TAG, "更新 " + bundle);
+        if (mCallbackList == null) {
+            return null;
+        }
+        Call call = null;
+        try {
+            int count = mCallbackList.beginBroadcast();
+            for (int i = 0; i < count; i++) {
+                CallbackProxy item = mCallbackList.getBroadcastItem(i);
+                try {
+                    XLog.d(TAG, "发送更新 " + bundle);
+                    // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
+                    Call temp = item.onChange(bundle);
+                    if (call == null) {
+                        call = temp;
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    if (call == null) {
+                        call = new Call();
+                        call.setResult(e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            XLog.e(TAG, "报错啦 " + e);
+            if (call == null) {
+                call = new Call();
+                call.setResult(e);
+            }
+        } finally {
+            mCallbackList.finishBroadcast();
+        }
+        return call;
     }
 
     private void putParamsData(Bundle bundle, Class<?> type, Object arg) {

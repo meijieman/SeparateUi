@@ -50,7 +50,7 @@ public class CallbackExchanger {
         Call call = new Call();
         Object obj = mMap.get(objHash);
         if (obj == null) {
-            XLog.i(TAG, "not found method instance. " + method);
+            XLog.d(TAG, "not found method instance. " + method);
             call.setResult(new RuntimeException("not found method instance. " + method));
             return call;
         }

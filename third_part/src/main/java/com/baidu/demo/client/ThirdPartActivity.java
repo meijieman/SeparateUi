@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baidu.che.codriver.xlog.XLog;
 import com.baidu.provider.Provider;
-import com.baidu.provider.common.util.ToastUtil;
 import com.baidu.separate.protocol.BookService;
 import com.baidu.separate.protocol.OnViewShow;
 import com.baidu.separate.protocol.RemoteViewService;

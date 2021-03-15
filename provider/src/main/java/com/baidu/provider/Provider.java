@@ -5,7 +5,6 @@ import android.content.Context;
 import com.baidu.provider.common.DataCenter;
 
 import java.lang.reflect.Proxy;
-import java.util.List;
 
 /**
  * 客户端数据提供者
@@ -43,7 +42,7 @@ public class Provider {
     /**
      * @param ipc 是否需要跨进程
      */
-    public void init(Context ctx, boolean ipc) {
+    public void init(Context ctx, final boolean ipc) {
         mIpc = ipc;
         if (ipc) {
             // FIXME: 2021/1/21 子线程运行，或需要添加链接成功回调
@@ -63,24 +62,19 @@ public class Provider {
      * @return
      */
     public <T> T get(Class<T> clazz) {
-
-        /* Q:如果不是跨进程，直接返回对应接口的实现类，但是实现类在 provider_server，如何拿到呢
-           A:将实现类的设置下沉到公共模块。这样 provider_server 和 provider 都可以获取到实现类
-         */
         if (!mIpc) {
-            List<Object> impls = DataCenter.getInstance().getImpls();
-            for (Object impl : impls) {
-                if (impl != null && clazz.isInstance(impl)) {
-                    return (T) impl;
-                }
+            T impl = DataCenter.getInstance().get(clazz);
+            if (impl != null) {
+                return impl;
             }
-            throw new RuntimeException("进程内请先调用 DataCenter2.getInstance#add 添加对应实现类");
-        }
 
-        ServiceInvocationHandler handler = new ServiceInvocationHandler(clazz, connector, mExchanger);
-        Class<?> classType = handler.getClassType();
-        Object proxy = Proxy.newProxyInstance(classType.getClassLoader(), new Class[]{classType}, handler);
-        return (T) proxy;
+            throw new RuntimeException("未使用 DataCenter.getInstance#add 添加对应实现类");
+        } else {
+            ServiceInvocationHandler handler = new ServiceInvocationHandler(clazz, connector, mExchanger);
+            Class<?> classType = handler.getClassType();
+            Object proxy = Proxy.newProxyInstance(classType.getClassLoader(), new Class[]{classType}, handler);
+            return (T) proxy;
+        }
     }
 
 }

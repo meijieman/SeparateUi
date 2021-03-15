@@ -17,6 +17,23 @@ public class Test8 {
 
     }
 
+    @Test
+    public void test2() {
+
+        System.out.println("Parent.isAssignableFrom(Child) " + Parent.class.isAssignableFrom(Child.class));
+        System.out.println("Child.isAssignableFrom(Parent) " + Child.class.isAssignableFrom(Child.class));
+        System.out.println("Child.isAssignableFrom(Parent) " + Parent.class.isAssignableFrom(Parent.class));
+        System.out.println("Child.isAssignableFrom(Parent) " + Child.class.isAssignableFrom(Parent.class));
+    }
+
+    interface Parent {
+
+    }
+
+    interface Child extends Parent {
+
+    }
+
 }
 
 abstract class A {

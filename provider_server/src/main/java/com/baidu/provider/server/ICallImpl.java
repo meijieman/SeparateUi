@@ -1,6 +1,5 @@
 package com.baidu.provider.server;
 
-import android.os.Bundle;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -14,7 +13,6 @@ import com.baidu.provider.common.DataCenter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,26 +44,12 @@ public class ICallImpl extends ICall.Stub {
         try {
             // FIXME: 2021/1/21 定义的接口如 BookService，PersonService 及其参数对象的  className 需要创建的包名路径一致
             // 以后可以通过编译时注解来解决，只需要接口中定义的方法对应上就可以
-            List<Object> mImpls = DataCenter.getInstance().getImpls();
-            if (mImpls.isEmpty()) {
-                XLog.e(TAG, "默认初始化失败");
-//                mImpls.add(Class.forName("com.baidu.protocol.BookServiceImpl").newInstance());
-//                mImpls.add(Class.forName("com.baidu.protocol.RemoteViewServiceImpl").newInstance());
-            }
-            XLog.d(TAG, "mImpls size " + mImpls.size());
 
             Class<?> classType = Class.forName(className);
             // 获取 classType 的实现类
-            Object invoker = null;
-            for (Object impl : mImpls) {
-                if (impl != null && classType.isInstance(impl)) {
-                    invoker = impl;
-                    break;
-                }
-            }
-
+            Object invoker = DataCenter.getInstance().get(classType);
             if (invoker == null) {
-                throw new RuntimeException("没有定义接口类或实现类");
+                throw new RuntimeException("未使用 DataCenter.getInstance#add 添加对应实现类（Across Process）");
             }
             // 获取所要调用的方法
             Method method = classType.getMethod(methodName, paramsTypes);
@@ -90,7 +74,7 @@ public class ICallImpl extends ICall.Stub {
 
                 // 创建回调的实现类
                 Class<?> paramsType = paramsTypes[0];
-                CallbackHandler callback = new CallbackHandler(this, objHash, paramsType);
+                CallbackHandler callback = new CallbackHandler(mCallbackList, objHash, paramsType);
                 ClassLoader classLoader = invoker.getClass().getClassLoader();
                 Object callbackProxy = Proxy.newProxyInstance(classLoader, new Class[]{paramsType}, callback);
 
@@ -152,41 +136,6 @@ public class ICallImpl extends ICall.Stub {
     @Override
     public void unregister(CallbackProxy proxy) throws RemoteException {
         mCallbackList.unregister(proxy);
-    }
-
-    Call notifyCallback(Bundle bundle) {
-        XLog.v(TAG, "更新 " + bundle);
-        Call call = null;
-        try {
-            int count = mCallbackList.beginBroadcast();
-            for (int i = 0; i < count; i++) {
-                CallbackProxy item = mCallbackList.getBroadcastItem(i);
-                try {
-                    XLog.d(TAG, "发送更新 " + bundle);
-                    // android.os.BadParcelableException: ClassNotFoundException when unmarshalling: com.baidu.separate.protocol.bean.Result
-                    Call temp = item.onChange(bundle);
-                    if (call == null) {
-                        call = temp;
-                    }
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                    if (call == null) {
-                        call = new Call();
-                        call.setResult(e);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            XLog.e(TAG, "报错啦 " + e);
-            if (call == null) {
-                call = new Call();
-                call.setResult(e);
-            }
-        } finally {
-            mCallbackList.finishBroadcast();
-        }
-        return call;
     }
 
 }

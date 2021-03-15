@@ -1,4 +1,4 @@
-package com.baidu.provider.common.util;
+package com.baidu.demo.client;
 
 import android.content.Context;
 import android.view.Gravity;

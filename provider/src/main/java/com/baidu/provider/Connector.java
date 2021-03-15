@@ -82,24 +82,19 @@ public class Connector {
      */
     public void connect(Context ctx, boolean ipc) {
         Slog.i(TAG, "连接 ");
+        if (!ipc) {
+            Slog.i(TAG, "非跨进程调用，返回");
+            return;
+        }
 
         if (mIsConnected.get()) {
             Slog.i(TAG, "重复连接，返回 ");
             return;
         }
-        // 链接对象
-        Intent intent;
-        if (ipc) {
-            intent = new Intent("conn_service_2");
-        } else {
-            // FIXME: 2021/2/7 暂时使用如此判断
-            if (true) {
-                return;
-            }
-            intent = new Intent("conn_service");
-        }
-        Slog.d(TAG, "intent " + intent.toURI());
+        // 连接远程服务
+        Intent intent = new Intent("com_baidu_provider_conn_service");
         Intent explicitIntent = explicitIntent(ctx, intent);
+        Slog.d(TAG, "intent " + intent.toURI());
         if (explicitIntent == null) {
             Slog.e(TAG, "绑定服务失败，服务不存在");
             return;
@@ -111,7 +106,7 @@ public class Connector {
         try {
 //            explicitIntent.putExtra("pid", Process.myPid());
             boolean isSuccess = ctx.bindService(explicitIntent, mConn, Context.BIND_AUTO_CREATE);
-            Slog.v(TAG, "bind " + isSuccess + ", " + Thread.currentThread().getName());
+            Slog.v(TAG, "bind " + isSuccess);
             if (isSuccess) {
                 try {
                     mCountDownLatch.await(500, TimeUnit.MILLISECONDS);

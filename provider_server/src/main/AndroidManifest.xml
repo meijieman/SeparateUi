@@ -3,19 +3,12 @@
     package="com.baidu.provider.server">
 
     <application>
-        <!-- 同进程 -->
-        <service android:name="com.baidu.provider.server.ConnService">
-            <intent-filter>
-                <action android:name="conn_service" />
-            </intent-filter>
-        </service>
-
         <!-- 跨进程 -->
         <service
-            android:name="com.baidu.provider.server.ConnService2"
+            android:name="com.baidu.provider.server.ConnService"
             android:exported="true">
             <intent-filter>
-                <action android:name="conn_service_2" />
+                <action android:name="com_baidu_provider_conn_service" />
             </intent-filter>
         </service>
     </application>

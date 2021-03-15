@@ -22,7 +22,7 @@ import java.util.Map;
  * @since 2021/1/23 5:18 PM
  */
 
-public class ICallImpl extends ICall.Stub {
+class ICallImpl extends ICall.Stub {
 
     private static final String TAG = "ICallImpl";
 

@@ -5,7 +5,7 @@ import com.baidu.provider.common.Slog;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class ServiceInvocationHandler implements InvocationHandler {
+class ServiceInvocationHandler implements InvocationHandler {
 
     private static final String TAG = "ServiceInvocationHandle";
 

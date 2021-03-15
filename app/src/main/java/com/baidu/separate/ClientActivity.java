@@ -67,6 +67,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         boolean isIpc = !getPackageName().equals(currentProcessName);
         // 初始化
         Provider.getInstance().init(ClientActivity.this, isIpc);
+//        Provider.getInstance().init(ClientActivity.this, "com.baidu.separate", isIpc);
 
     }
 

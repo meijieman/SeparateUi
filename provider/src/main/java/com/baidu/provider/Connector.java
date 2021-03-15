@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 负责创建链接，注册回调监听
+ * 负责创建远程链接，注册回调监听
  */
-public class Connector {
+class Connector {
     private static final String TAG = "Connector";
 
     private final CallbackExchanger mExchanger;
@@ -78,34 +78,37 @@ public class Connector {
     };
 
     /**
-     * 创建链接
+     * 创建远程连接
+     *
+     * @param ctx
+     * @param targetPackageName 目标服务所在的包名
      */
-    public void connect(Context ctx, boolean ipc) {
+    public void connect(Context ctx, String targetPackageName) {
         Slog.i(TAG, "连接 ");
-        if (!ipc) {
-            Slog.i(TAG, "非跨进程调用，返回");
-            return;
-        }
-
         if (mIsConnected.get()) {
             Slog.i(TAG, "重复连接，返回 ");
             return;
         }
         // 连接远程服务
         Intent intent = new Intent("com_baidu_provider_conn_service");
-        Intent explicitIntent = explicitIntent(ctx, intent);
-        Slog.d(TAG, "intent " + intent.toURI());
-        if (explicitIntent == null) {
-            Slog.e(TAG, "绑定服务失败，服务不存在");
-            return;
+        if (targetPackageName != null) {
+            intent.setPackage(targetPackageName);
+        } else {
+            intent = explicitIntent(ctx, intent);
+            if (intent == null) {
+                Slog.e(TAG, "绑定服务失败，服务不存在");
+                return;
+            }
+            // 正常输出explicitIntent #Intent;action=com_baidu_provider_conn_service;component=com.baidu.che.codriver/com.baidu.provider.server.ConnService;end
+            // 如果有多个 app 集成了 provider_server.aar 调用 com.baidu.provider.Connector#explicitIntent 会绑定失败
+            Slog.d(TAG, "explicitIntent " + intent.toURI());
         }
 
-        // 正常输出explicitIntent #Intent;action=conn_service_2;component=com.baidu.che.codriver/com.baidu.provider.server.ConnService2;end
-        // 如果有多个 app 集成了 provider_server.aar 调用 com.baidu.provider.Connector#explicitIntent 会绑定失败
-        Slog.d(TAG, "explicitIntent " + explicitIntent.toURI());
+        Slog.d(TAG, "intent " + intent.toURI());
+
         try {
 //            explicitIntent.putExtra("pid", Process.myPid());
-            boolean isSuccess = ctx.bindService(explicitIntent, mConn, Context.BIND_AUTO_CREATE);
+            boolean isSuccess = ctx.bindService(intent, mConn, Context.BIND_AUTO_CREATE);
             Slog.v(TAG, "bind " + isSuccess);
             if (isSuccess) {
                 try {

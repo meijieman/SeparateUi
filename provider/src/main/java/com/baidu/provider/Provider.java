@@ -30,6 +30,9 @@ public class Provider {
         connector = new Connector(mExchanger);
     }
 
+    /**
+     * 获取单例
+     */
     public static Provider getInstance() {
         return Holder.sInstance;
     }
@@ -39,17 +42,29 @@ public class Provider {
     }
 
     /**
+     * 初始化框架
+     *
      * @param ipc 是否需要跨进程
      */
     public void init(Context ctx, final boolean ipc) {
+        init(ctx, null, ipc);
+    }
+
+    /**
+     * 初始化框架
+     *
+     * @param targetPackageName 目标服务所在的包名，跨进程的时候配置使用，如果配置为 null，跨进程的时候回去主动查找
+     * @param ipc               是否需要跨进程
+     */
+    public void init(Context ctx, final String targetPackageName, final boolean ipc) {
         mIpc = ipc;
         if (ipc) {
             // FIXME: 2021/1/21 子线程运行，或需要添加链接成功回调
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    // ui 分离
-                    connector.connect(ctx, ipc);
+                    // 链接远程服务
+                    connector.connect(ctx, targetPackageName);
                 }
             }).start();
         }

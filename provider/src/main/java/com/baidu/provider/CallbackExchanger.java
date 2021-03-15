@@ -19,7 +19,7 @@ import java.util.Map;
  * @since 2021/2/17 4:26 PM
  */
 
-public class CallbackExchanger {
+class CallbackExchanger {
 
     private static final String TAG = "CallbackExchanger";
     private final Handler mHandler = new Handler(Looper.getMainLooper());

@@ -105,6 +105,9 @@ Android通过RemoteViews实现跨进程更新UI
 https://blog.csdn.net/chenzheng8975/article/details/54969791
 
 
+getInterfaceDescriptor
+
+方法描述符，获取方法的唯一描述
 
 
 

@@ -27,6 +27,8 @@ public class ConnService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        // TODO: 2021/3/15 添加鉴权校验
+
         String callingApp = getPackageManager().getNameForUid(Binder.getCallingUid());
         Slog.i(TAG, "packageName " + intent.getComponent() + ", pid " + Binder.getCallingPid() + ", " + callingApp);
         ICallImpl iCall = new ICallImpl();

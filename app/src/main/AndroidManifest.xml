@@ -21,8 +21,8 @@
         <activity
             android:name=".ClientActivity"
             android:label="ClientActivity"
-            android:process=":remote"
             />
+<!--            android:process=":remote"-->
 
     </application>
 

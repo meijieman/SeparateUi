@@ -71,11 +71,16 @@ public class Provider {
     }
 
     /**
-     * @param clazz 提供数据的接口
+     * 获取具备某种功能的实现类（同进程返回的为初始化时传入的实现类，跨进程返回的为动态代理对象）
+     *
+     * @param clazz 有对应功能的实现类的接口类
      * @param <T>
      * @return
      */
     public <T> T get(Class<T> clazz) {
+        if (!clazz.isInterface()) {
+            throw new RuntimeException("param must be a interface. " + clazz);
+        }
         if (!mIpc) {
             T impl = DataCenter.getInstance().get(clazz);
             if (impl != null) {
